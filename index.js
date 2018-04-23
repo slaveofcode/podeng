@@ -1,14 +1,17 @@
 'use strict';
 
-const objectComponent = () => {
+const types = require('./types');
 
-}
+const objectComponent = (schema) => {
+  
+};
 
-const arrayComponent = () => {
+const arrayComponent = (listObjComponent) => {
 
-}
+};
 
 module.exports = {
   object: objectComponent,
-  array: arrayComponent
+  array: arrayComponent,
+  types
 }

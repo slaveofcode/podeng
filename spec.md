@@ -20,7 +20,7 @@
 - Check instance of component
 - Multi-level parser
 - Valid value based on ENUM
-- Configurable component validator (default is active)
+- Configurable component validator (default is inactive)
 - immutable results
 - custom value mapping
 
@@ -33,7 +33,7 @@ const types = ohmyjs.types;
 const item = ohmyjs.object({
   categoryName: types.string,
   categoryId: types.number,
-  someSecretKey: types.string({ serializeTo: 'someKey' }) // instant key parser
+  someSecretKey: types.string
 }, {
   throw: {
     onKey: (key, value) => throw new Error(`Error on key ${key} with value ${value}`),
