@@ -17,7 +17,7 @@ const Item = blueprint.object({
 });
 
 // Creating serializer from 
-const parsedItem = Item.serialize({
+const parsedItem = Item({
   categoryName: 'cars',
   categoryId: '1'
 });
@@ -25,7 +25,7 @@ const parsedItem = Item.serialize({
 // Creating blueprint of array of object
 const Items = blueprint.array(Item)
 
-const parsedItems = Items.serialize([
+const parsedItems = Items([
   {
     categoryName: 'cars',
     categoryId: '1'
@@ -69,9 +69,10 @@ const Mutant = blueprint.extend(Person, {
 
 // keyMutation example
 const FooBar = blueprint.object({
-  id: type.integer({ mutate: { display: false } }),
-  thing: type.string({ mutate: { to: 'something' } })
+  id: type.integer({ serialize: { display: false } }),
+  thing: type.string({ serialize: { to: 'something' } })
 });
 
 const foo = FooBar({ id: '343', thing: 'boooo laaa' }); // { id: 343, thing: 'boooo laaa' }
-const fooMutated = FooBar.mutate({ id: '343', thing: 'boooo laaa' }) // { something: 'boooo laaa' }
+const fooMutated = FooBar.serialize({ id: '343', thing: 'boooo laaa' }) // { something: 'boooo laaa' }
+const fooFromMutated = FooBar.deserialize({ something: 'boooo laaa' }) // { thing: 'boooo laaa' }
