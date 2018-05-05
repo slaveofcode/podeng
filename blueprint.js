@@ -1,5 +1,5 @@
 // Parser
-const { blueprint, types, faker } = require('podeng');
+const { blueprint, types, faker, validator } = require('podeng');
 
 // Type properties
 // - String: min, max, translate: [uppercased, lowercased, upper_first, upper_first_word, custom func]
@@ -40,10 +40,10 @@ const parsedItems = Items([
 const Person = blueprint.object(
   {
     id: type.number,
-    name: type.string({ min: 4, max: 50, translate: 'upper_first_word' }),
+    name: type.string({ min: 4, max: 50, translate: 'upper_first_word' }, { default: 'No Names' }),
     hobby: type.array(type.string),
-    someComplexArray: type.array({ id: type.number, name: type.string }),
-    arrayItemOfObj: type.array(Item),
+    someComplexArray: type.array({ id: type.number, name: type.string }, { default: null }),
+    arrayItemOfObj: type.array(Item, { default: [] }),
     arrayItems: Items
   },
   {
@@ -67,10 +67,15 @@ const Mutant = blueprint.extend(Person, {
   deleteProperties: ['id', 'hobby']
 });
 
+// validating with existing blueprint object
+const [ isError, errorDetails ] = validator(Mutant).check({ breathOnWater: 'Not valid value' }) // return status of validation, not throwing error
+validator(Mutant).validate({ breathOnWater: 'Not valid value' }) // throw an error
+
 // keyMutation example
 const FooBar = blueprint.object({
   id: type.integer({ serialize: { display: false } }),
-  thing: type.string({ serialize: { to: 'something' } })
+  thing: type.string({ serialize: { to: 'something' } }),
+
 });
 
 const foo = FooBar({ id: '343', thing: 'boooo laaa' }); // { id: 343, thing: 'boooo laaa' }
