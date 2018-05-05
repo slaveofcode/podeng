@@ -1,0 +1,32 @@
+{
+  "name": "podeng",
+  "version": "1.0.0",
+  "description": "Smart JSON value handler ",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slaveofcode/podeng.git"
+  },
+  "keywords": [
+    "json",
+    "json-validator",
+    "json-handler",
+    "parser",
+    "validator"
+  ],
+  "author": "Aditya Kresna Permana",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/slaveofcode/podeng/issues"
+  },
+  "homepage": "https://github.com/slaveofcode/podeng#readme",
+  "devDependencies": {
+    "jest": "^22.4.3"
+  }
+}
