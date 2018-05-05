@@ -7,7 +7,13 @@ const NORMALIZER = {
   uppercased: value => _.toUpper(value),
   lowercased: value => _.toLower(value),
   upper_first: value => _.upperFirst(value),
-  upper_first_word: value => {},
+  upper_first_word: value => {
+    let upperCasedFirst = [];
+    _.forEach(value.split(/\s/g), v => {
+      upperCasedFirst.push(_.toUpper(v));
+    });
+    return upperCasedFirst.length > 0 ? upperCasedFirst.join(' ') : value;
+  },
   lower_first: value => _.lowerFirst(value),
   lower_first_word: value => {},
 };
