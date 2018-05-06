@@ -23,7 +23,9 @@ const NORMALIZER = {
 const parseValue = value => {
   console.log('Parsing string values');
   // handle options
-  return [err, value];
+  const err = null;
+  const parsedValue = value;
+  return [err, parsedValue];
 };
 
 const handler = (
@@ -32,12 +34,12 @@ const handler = (
   const parser = () => {};
   parser.parse = value => {
     let parsedVal = options.default;
-    const [err, value] = parseValue(value);
+    const [err, result] = parseValue(value);
 
-    if (!err) parsedVal = value;
+    if (!err) parsedVal = result;
 
     if (!err && options.normalize && NORMALIZER[options.normalize])
-      parsedVal = NORMALIZER[options.normalize](value);
+      parsedVal = NORMALIZER[options.normalize](parsedVal);
 
     if (!err && isFunction(options.normalize))
       parsedVal = options.normalize(parsedVal);
