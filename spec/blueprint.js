@@ -2,7 +2,7 @@
 const { blueprint, types, faker, validator } = require('podeng');
 
 // Type properties
-// - String: min, max, translate: [uppercased, lowercased, upper_first, upper_first_word, custom func]
+// - String: min, max, normalize: [uppercased, lowercased, upper_first, upper_first_word, custom func]
 
 // Creating blueprint of object
 const Item = blueprint.object(
