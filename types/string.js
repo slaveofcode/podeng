@@ -9,13 +9,15 @@ const NORMALIZER = {
   upper_first: value => _.upperFirst(value),
   upper_first_word: value => {
     let upperCasedFirst = [];
-    _.forEach(value.split(/\s/g), v => {
-      upperCasedFirst.push(_.toUpper(v));
-    });
+    _.forEach(value.split(/\s/g), v => upperCasedFirst.push(_.toUpper(v)));
     return upperCasedFirst.length > 0 ? upperCasedFirst.join(' ') : value;
   },
   lower_first: value => _.lowerFirst(value),
-  lower_first_word: value => {},
+  lower_first_word: value => {
+    let lowerCasedFirst = [];
+    _.forEach(value.split(/\s/g), v => lowerCasedFirst.push(_.toLower(v)));
+    return lowerCasedFirst.length > 0 ? lowerCasedFirst.join(' ') : value;
+  },
 };
 
 const parseValue = value => {
