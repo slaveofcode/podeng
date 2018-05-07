@@ -1,17 +1,13 @@
 'use strict';
 
+const blueprint = require('./blueprint');
 const types = require('./types');
-
-const objectComponent = (schema) => {
-  
-};
-
-const arrayComponent = (listObjComponent) => {
-
-};
+const validator = require('./validator');
+const faker = require('./faker');
 
 module.exports = {
-  object: objectComponent,
-  array: arrayComponent,
-  types
-}
+  blueprint,
+  types,
+  validator,
+  faker
+};
