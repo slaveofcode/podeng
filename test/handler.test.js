@@ -9,3 +9,11 @@ test('Create an instace of blueprint object', () => {
 
   expect(typeof Car).toEqual('function');
 });
+
+test('Make sure blueprint object working with at least one type', () => {
+  const Car = blueprint.object({
+    type: types.string,
+  });
+
+  expect(Car({ type: 'Honda' })).toEqual({ type: 'Honda' })
+});
