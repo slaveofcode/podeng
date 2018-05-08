@@ -15,8 +15,17 @@ const createHandler = (schema, isArrayType = false) => {
   const normalizeValue = function (valuesToNormalize) {
     const normalizedResult = {}
     const errorResults = []
+
+    const initiateTypeHandler = typehandler => {
+      if (_.includes(_.keys(typehandler), 'parse')) {
+        return typehandler
+      } else {
+        return typehandler()
+      }
+    }
+
     _.forEach(this.schema, (typeHandler, key) => {
-      const handler = typeHandler()
+      const handler = initiateTypeHandler(typeHandler)
       const [fail, normalizedValue] = handler.parse(valuesToNormalize[key])
       if (!fail || (fail && !handler.isHideOnFail())) {
         normalizedResult[key] = normalizedValue
