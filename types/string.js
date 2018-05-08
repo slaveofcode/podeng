@@ -75,8 +75,6 @@ const handler = (options = {}) => {
         : options.default;
     }
 
-    if (err) console.log(err, options);
-
     return [err, parsedVal];
   };
 
