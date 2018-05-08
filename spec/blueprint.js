@@ -18,11 +18,11 @@ const Item = blueprint.object(
       },
       onAll: (key, value, allParams) => {
         throw new Error(
-          `Error on key ${key} with value ${value}and all params ${allParams}`
+          `Error on key ${key} with value ${value}and all params ${allParams}`,
         );
       },
     },
-  }
+  },
 );
 
 // Creating serializer from
@@ -64,6 +64,8 @@ const Person = blueprint.object(
       normalize: 'upper_first_word',
       default: 'No Names',
     }),
+    phone: type.ext.phone,
+    credit_card: type.ext.credit_card,
     hobby: type.array(type.string),
     someComplexArray: type.array({
       id: type.number,
@@ -76,7 +78,7 @@ const Person = blueprint.object(
   {
     giveWarning: true, // warning on wrong value given
     throwOnError: true, // throw error on wrong value given
-  }
+  },
 );
 
 // Condition types
@@ -143,7 +145,7 @@ const Mutant = blueprint.extend(
   },
   {
     deleteProperties: ['id', 'hobby'],
-  }
+  },
 );
 
 // validating with existing blueprint object
