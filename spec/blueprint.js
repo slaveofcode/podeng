@@ -79,11 +79,57 @@ const Person = blueprint.object(
   }
 )
 
+// Condition types
+const spicyEvaluator = food => {
+  const foodEvaluator = {
+    'gado-gado': true,
+    pizza: true,
+    steak: false,
+    tomyum: true
+  }
+
+  return foodEvaluator[food]
+}
+
+const asianFoodEvaluator = (food, evaluatedValue) => {
+  const asianFoodEvaluator = {
+    'gado-gado': true,
+    pizza: false,
+    steak: false,
+    tomyum: true
+  }
+
+  return evaluatedValue && asianFoodEvaluator[food]
+}
+
+const Food = blueprint.object({
+  name: types.string,
+  isSpicy: types.conditions({
+    evaluates: foodEvaluator,
+    onTrue: 'Yes',
+    onFalse: 'No'
+  }),
+  isSpicyAndFromAsian: types.conditions({
+    evaluates: [foodEvaluator, asianFoodEvaluator],
+    onTrue: 'Yes',
+    onFalse: 'No'
+  }),
+  isFoodIsSpicyAndFromAsian: types.conditions({
+    evaluates: foodEvaluator,
+    onTrue: types.conditions({
+      evaluates: asianFoodEvaluator,
+      onTrue: 'True Asian Spicy Food',
+      onFalse: 'No'
+    }),
+    onFalse: 'No'
+  })
+})
+
 // Creating fake data
 const fakePerson = faker.faking(Person)
 const fakeItems = faker.faking(Items)
 
-// Extending Blueprint object
+// Extending Blueprint object, same property on extend will override parent property
 const Mutant = blueprint.extend(
   Person,
   {
