@@ -1,23 +1,30 @@
 'use strict';
 
 const { isFunction, isString } = require('./detector');
-const _ = require('lodash');
+const {
+  trim,
+  toUpper,
+  toLower,
+  upperFirst,
+  forEach,
+  lowerFirst,
+} = require('lodash');
 const { combineDefaultOptions } = require('./utils');
 
 const NORMALIZER = {
-  trimmed: value => _.trim(value),
-  uppercased: value => _.toUpper(value),
-  lowercased: value => _.toLower(value),
-  upper_first: value => _.upperFirst(value),
+  trimmed: value => trim(value),
+  uppercased: value => toUpper(value),
+  lowercased: value => toLower(value),
+  upper_first: value => upperFirst(value),
   upper_first_word: value => {
     let upperCasedFirst = [];
-    _.forEach(value.split(/\s/g), v => upperCasedFirst.push(_.toUpper(v)));
+    forEach(value.split(/\s/g), v => upperCasedFirst.push(toUpper(v)));
     return upperCasedFirst.length > 0 ? upperCasedFirst.join(' ') : value;
   },
-  lower_first: value => _.lowerFirst(value),
+  lower_first: value => lowerFirst(value),
   lower_first_word: value => {
     let lowerCasedFirst = [];
-    _.forEach(value.split(/\s/g), v => lowerCasedFirst.push(_.toLower(v)));
+    forEach(value.split(/\s/g), v => lowerCasedFirst.push(toLower(v)));
     return lowerCasedFirst.length > 0 ? lowerCasedFirst.join(' ') : value;
   },
 };
@@ -34,13 +41,14 @@ const parseValue = (value, stringify = true) => {
   return [err, parsedValue];
 };
 
-const handler = (
-  options = combineDefaultOptions({
+const handler = (options = {}) => {
+  const defaultOptions = combineDefaultOptions({
     min: null,
     max: null,
     normalize: null,
-  }),
-) => {
+  });
+  options = Object.assign(defaultOptions, options);
+
   const parser = () => {};
   parser.parse = value => {
     let parsedVal = options.default;
@@ -61,10 +69,18 @@ const handler = (
       parsedVal = options.normalize(parsedVal);
     }
 
+    if (err) {
+      parsedVal = isFunction(options.default)
+        ? options.default()
+        : options.default;
+    }
+
+    if (err) console.log(err, options);
+
     return [err, parsedVal];
   };
 
-  parser.isHideOnFail = options.hideOnFail;
+  parser.isHideOnFail = () => options.hideOnFail;
 
   return parser;
 };

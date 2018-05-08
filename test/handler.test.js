@@ -1,4 +1,5 @@
 'use strict';
+
 const blueprint = require('../blueprint');
 const types = require('../types');
 
