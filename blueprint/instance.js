@@ -11,6 +11,7 @@ const cls = function (schema, { isArray = false }) {
 }
 
 const normalizeValue = function (valuesToNormalize) {
+  // TODO: Check this.isArray type to treat values differently
   const normalizedResult = {}
   const errorResults = []
 
@@ -33,11 +34,13 @@ const normalizeValue = function (valuesToNormalize) {
 }
 
 const serializeValue = function (values) {
+  // TODO: Check this.isArray type to treat values differently
   console.log(`Serialize value processed with schema: ${this.schema}`)
   return [false, null, { serializedkey1: 'fooo' }]
 }
 
 const deserializeValue = function (values) {
+  // TODO: Check this.isArray type to treat values differently
   console.log(`Deserialize value processed with schema: ${this.schema}`)
   return [false, null, { deserializedkey1: 'fooo' }]
 }
