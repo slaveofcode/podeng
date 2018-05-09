@@ -41,3 +41,15 @@ test('Object include string type with json stringify', () => {
     value: 'ValueFunc',
   });
 });
+
+test('Object include string with normalize options', () => {
+  const ObjString = blueprint.object({
+    value1: types.string({ normalize: 'uppercased' }),
+    value2: types.string({ normalize: 'lowercased' }),
+  });
+
+  expect(ObjString({ value1: 'Some Text', value2: 'Some Text' })).toEqual({
+    value1: 'SOME TEXT',
+    value2: 'some text',
+  });
+});
