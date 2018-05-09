@@ -6,28 +6,13 @@ const { combineObjDefaultOptions } = require('./utils')
 const { errorInitializer, warningInitializer } = require('./errors')
 
 const createHandler = (schema, isArrayType = false) => {
-  const initHandler = () => {
-    const obj = new cls(schema, { isArrayType })
+  const obj = new cls(schema, { isArrayType })
 
-    const doProcessValue = values => {
-      // Check values is an blueprint object
-      // if yes, do execute the object and return the value from that object result
-      // if not, just do normalize as usual
-      console.log('Evaluating input values')
-      console.log('Object process calling: ')
-      return obj.normalizeValue(values)
-    }
+  const handlerFunc = () => {}
+  handlerFunc.getInstance = () => obj
+  handlerFunc.getClass = () => cls
 
-    // default process
-    const handlerFunc = values => doProcessValue(values)
-
-    handlerFunc.getInstance = () => obj
-    handlerFunc.getClass = () => cls
-
-    return handlerFunc
-  }
-
-  return initHandler()
+  return handlerFunc
 }
 
 const componentCreator = isArrayComponent => {
@@ -49,7 +34,11 @@ const componentCreator = isArrayComponent => {
      * @returns {Object} Normalized values
      */
     const component = function (values) {
-      const [err, errDetails, normalizedValues] = handler(values)
+      const [
+        err,
+        errDetails,
+        normalizedValues
+      ] = handler.getInstance().normalizeValue(values)
 
       if (err) {
         warningHandler(errDetails)
