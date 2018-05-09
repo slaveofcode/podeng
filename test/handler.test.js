@@ -42,3 +42,34 @@ test('Make sure blueprint object working with at least one type', () => {
   expect(Cars([{ type: 'Honda' }])).toEqual([{ type: 'Honda' }])
   expect(Cars2([{ type: 'Honda' }])).toEqual([{ type: 'Honda' }])
 })
+
+test('Frozen and Non frozen object', () => {
+  const FrozenCar = blueprint.object({
+    type: types.string
+  })
+
+  const Car = blueprint.object(
+    {
+      type: types.string
+    },
+    { frozen: false }
+  )
+
+  const frozenCar = FrozenCar({ type: 'Honda' })
+  const nonFrozenCar = Car({ type: 'Honda' })
+
+  const executeFrozenObj = () => {
+    frozenCar.color = 'blue'
+  }
+
+  const executeNonFrozenObj = () => {
+    nonFrozenCar.color = 'blue'
+  }
+
+  expect(executeFrozenObj).toThrow()
+  expect(executeNonFrozenObj).not.toThrow()
+  expect(nonFrozenCar).toEqual({
+    type: 'Honda',
+    color: 'blue'
+  })
+})

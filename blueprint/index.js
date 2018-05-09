@@ -7,6 +7,11 @@ const { combineObjDefaultOptions } = require('./utils')
 const { errorInitializer, warningInitializer } = require('./errors')
 const { isFunction } = require('../types/detector')
 
+/**
+ * Creating new instance and return as handler function
+ * @param {Object} schema
+ * @param {boolean} isArrayType
+ */
 const createHandler = (schema, isArrayType = false) => {
   const inst = new cls(schema, { isArray: isArrayType })
 
@@ -15,6 +20,19 @@ const createHandler = (schema, isArrayType = false) => {
   handlerFunc.getClass = () => cls
 
   return handlerFunc
+}
+
+/**
+ * Deep freezing object recursively
+ * @param {Object} obj
+ */
+const freezeObject = obj => {
+  keys(obj).forEach(name => {
+    const prop = obj[name]
+    if (typeof prop === 'object' && prop !== null) freezeObject(prop)
+  })
+
+  return Object.freeze(obj)
 }
 
 const componentCreator = isArrayComponent => {
@@ -57,7 +75,7 @@ const componentCreator = isArrayComponent => {
         errorHandler(errorDetails)
       }
 
-      return normalizedValues
+      return options.frozen ? freezeObject(normalizedValues) : normalizedValues
     }
 
     /**
@@ -76,7 +94,7 @@ const componentCreator = isArrayComponent => {
         errorHandler(errorDetails)
       }
 
-      return serializedValues
+      return options.frozen ? freezeObject(serializedValues) : serializedValues
     }
 
     /**
@@ -96,7 +114,9 @@ const componentCreator = isArrayComponent => {
         errorHandler(errorDetails)
       }
 
-      return deserializedValues
+      return options.frozen
+        ? freezeObject(deserializedValues)
+        : deserializedValues
     }
 
     /**

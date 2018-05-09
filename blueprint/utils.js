@@ -1,6 +1,7 @@
 'use strict'
 
 const DEFAULT_OPTIONS = {
+  frozen: true,
   giveWarning: false,
   throwOnError: false
 }
