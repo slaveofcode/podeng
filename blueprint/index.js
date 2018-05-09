@@ -30,86 +30,87 @@ const createHandler = (schema, isArrayType = false) => {
   return initHandler()
 }
 
-const objectComponent = (params, options = {}) => {
-  options = combineObjDefaultOptions(options)
-  const handler = createHandler(params)
+const componentCreator = isArrayComponent => {
+  return (params, options = {}) => {
+    const handler = createHandler(params, isArrayComponent)
 
-  const errorHandler = errorInitializer({ throwOnError: options.throwOnError })
-  const warningHandler = warningInitializer({
-    giveWarning: options.giveWarning
-  })
+    options = combineObjDefaultOptions(options)
 
-  /**
-   * Normalize function
-   * @param {Object} values
-   * @returns {Object} Normalized values
-   */
-  const component = function (values) {
-    const [err, errDetails, normalizedValues] = handler(values)
+    const errorHandler = errorInitializer({
+      throwOnError: options.throwOnError
+    })
+    const warningHandler = warningInitializer({
+      giveWarning: options.giveWarning
+    })
 
-    if (err) {
-      warningHandler(errDetails)
-      errorHandler(errorDetails)
+    /**
+     * Normalize function
+     * @param {Object} values
+     * @returns {Object} Normalized values
+     */
+    const component = function (values) {
+      const [err, errDetails, normalizedValues] = handler(values)
+
+      if (err) {
+        warningHandler(errDetails)
+        errorHandler(errorDetails)
+      }
+
+      return normalizedValues
     }
 
-    return normalizedValues
-  }
+    /**
+     * Serialize function
+     * @param {Object} values
+     * @returns {Object} Serialized values
+     */
+    component.serialize = values => {
+      const [
+        err,
+        errorDetails,
+        serializedValues
+      ] = handler.getInstance().serialize(values)
 
-  /**
-   * Serialize function
-   * @param {Object} values
-   * @returns {Object} Serialized values
-   */
-  component.serialize = values => {
-    const [
-      err,
-      errorDetails,
-      serializedValues
-    ] = handler.getInstance().serialize(values)
+      if (err) {
+        warningHandler(errDetails)
+        errorHandler(errorDetails)
+      }
 
-    if (err) {
-      warningHandler(errDetails)
-      errorHandler(errorDetails)
+      return serializedValues
     }
 
-    return serializedValues
-  }
+    /**
+     * Deserialize function
+     * @param {Object} values
+     * @returns {Object} Deserialized values
+     */
+    component.deserialize = values => {
+      const [
+        err,
+        errorDetails,
+        deserializedValues
+      ] = handler.getInstance().deserialize(values)
 
-  /**
-   * Deserialize function
-   * @param {Object} values
-   * @returns {Object} Deserialized values
-   */
-  component.deserialize = values => {
-    const [
-      err,
-      errorDetails,
-      deserializedValues
-    ] = handler.getInstance().deserialize(values)
+      if (err) {
+        warningHandler(errDetails)
+        errorHandler(errorDetails)
+      }
 
-    if (err) {
-      warningHandler(errDetails)
-      errorHandler(errorDetails)
+      return deserializedValues
     }
 
-    return deserializedValues
+    /**
+     * Getting instance from original class instance
+     * @returns Object
+     */
+    component.getInstance = () => handler.getInstance()
+
+    return component
   }
-
-  /**
-   * Getting instance from original class instance
-   * @returns Object
-   */
-  component.getInstance = () => handler.getInstance()
-
-  return component
-}
-
-const arrayComponent = (params, options = {}) => {
-  options = combineObjDefaultOptions(options)
 }
 
 module.exports = {
-  object: objectComponent,
-  array: arrayComponent,
+  object: componentCreator(false),
+  array: componentCreator(true),
   types
 }
