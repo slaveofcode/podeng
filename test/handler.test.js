@@ -18,10 +18,12 @@ test('Create an instance of blueprint array', () => {
     type: types.string
   })
 
-  const Cars = blueprint.array(Car)
+  const Cars = blueprint.array({ type: types.string() })
+  const Cars2 = blueprint.array(Car)
 
   expect(typeof Cars).toEqual('function')
   expect(Cars.getInstance() instanceof blueprintClass).toBe(true)
+  expect(Cars2.getInstance() instanceof blueprintClass).toBe(true)
 })
 
 test('Make sure blueprint object working with at least one type', () => {
@@ -32,6 +34,11 @@ test('Make sure blueprint object working with at least one type', () => {
     type: types.string()
   })
 
+  const Cars = blueprint.array({ type: types.string() })
+  const Cars2 = blueprint.array(Car)
+
   expect(Car({ type: 'Honda' })).toEqual({ type: 'Honda' })
   expect(Car2({ type: 'Honda' })).toEqual({ type: 'Honda' })
+  expect(Cars([{ type: 'Honda' }])).toEqual([{ type: 'Honda' }])
+  expect(Cars2([{ type: 'Honda' }])).toEqual([{ type: 'Honda' }])
 })

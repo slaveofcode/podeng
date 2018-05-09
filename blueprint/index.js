@@ -1,12 +1,14 @@
 'use strict'
 
+const { includes, keys } = require('lodash')
 const { cls } = require('./instance')
 const types = require('../types')
 const { combineObjDefaultOptions } = require('./utils')
 const { errorInitializer, warningInitializer } = require('./errors')
+const { isFunction } = require('../types/detector')
 
 const createHandler = (schema, isArrayType = false) => {
-  const inst = new cls(schema, { isArrayType })
+  const inst = new cls(schema, { isArray: isArrayType })
 
   const handlerFunc = () => {}
   handlerFunc.getInstance = () => inst
@@ -17,7 +19,17 @@ const createHandler = (schema, isArrayType = false) => {
 
 const componentCreator = isArrayComponent => {
   return (params, options = {}) => {
-    const handler = createHandler(params, isArrayComponent)
+    /**
+     * Detect params passed as a component instead of a json
+     */
+    let handler
+    if (includes(keys(params), 'getHandler') && isFunction(params.getHandler)) {
+      // Re-creating handler from existing components also copying the options
+      handler = createHandler(params.getParams(), isArrayComponent)
+      options = params.getOptions()
+    } else {
+      handler = createHandler(params, isArrayComponent)
+    }
 
     options = combineObjDefaultOptions(options)
 
@@ -36,12 +48,12 @@ const componentCreator = isArrayComponent => {
     const component = function (values) {
       const [
         err,
-        errDetails,
+        errorDetails,
         normalizedValues
-      ] = handler.getInstance().normalizeValue(values)
+      ] = handler.getInstance().normalize(values)
 
       if (err) {
-        warningHandler(errDetails)
+        warningHandler(errorDetails)
         errorHandler(errorDetails)
       }
 
@@ -59,7 +71,6 @@ const componentCreator = isArrayComponent => {
         errorDetails,
         serializedValues
       ] = handler.getInstance().serialize(values)
-
       if (err) {
         warningHandler(errDetails)
         errorHandler(errorDetails)
@@ -89,10 +100,19 @@ const componentCreator = isArrayComponent => {
     }
 
     /**
-     * Getting instance from original class instance
+     * Return handler from this component
+     * @returns Object
+     */
+    component.getHandler = () => handler
+
+    /**
+     * Return instance from original class instance
      * @returns Object
      */
     component.getInstance = () => handler.getInstance()
+
+    component.getParams = () => Object.assign({}, params)
+    component.getOptions = () => Object.assign({}, options)
 
     return component
   }
