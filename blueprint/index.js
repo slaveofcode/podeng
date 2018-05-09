@@ -2,6 +2,8 @@
 
 const { cls } = require('./instance')
 const types = require('../types')
+const { combineObjDefaultOptions } = require('./utils')
+const { errorInitializer, warningInitializer } = require('./errors')
 
 const createHandler = (schema, isArrayType = false) => {
   const initHandler = () => {
@@ -19,7 +21,7 @@ const createHandler = (schema, isArrayType = false) => {
     // default process
     const handlerFunc = values => doProcessValue(values)
 
-    handlerFunc.getObject = () => obj
+    handlerFunc.getInstance = () => obj
     handlerFunc.getClass = () => cls
 
     return handlerFunc
@@ -28,76 +30,83 @@ const createHandler = (schema, isArrayType = false) => {
   return initHandler()
 }
 
-const objectComponent = (
-  params,
-  options = { giveWarning: false, throwOnError: false }
-) => {
+const objectComponent = (params, options = {}) => {
+  options = combineObjDefaultOptions(options)
   const handler = createHandler(params)
 
-  const errorHandler = (
-    isWarning,
-    { errorDetails, throwOnError, giveWarning }
-  ) => {
-    if (isWarning) {
-      // check if giveWarning type is object, probably should display warning on specific key with custom handler
-      // show warning here
-    } else {
-      // check if throwOnError type is object, probably should throw error on specific key with custom handler
-      // throw error here
-    }
-  }
+  const errorHandler = errorInitializer({ throwOnError: options.throwOnError })
+  const warningHandler = warningInitializer({
+    giveWarning: options.giveWarning
+  })
 
+  /**
+   * Normalize function
+   * @param {Object} values
+   * @returns {Object} Normalized values
+   */
   const component = function (values) {
     const [err, errDetails, normalizedValues] = handler(values)
+
     if (err) {
-      errorHandler(true, {
-        errorDetails,
-        throwOnError: options.throwOnError,
-        giveWarning: options.giveWarning
-      })
+      warningHandler(errDetails)
+      errorHandler(errorDetails)
     }
 
     return normalizedValues
   }
 
+  /**
+   * Serialize function
+   * @param {Object} values
+   * @returns {Object} Serialized values
+   */
   component.serialize = values => {
-    const [err, errorDetails, serializedValues] = handler
-      .getObject()
-      .serialize(values)
+    const [
+      err,
+      errorDetails,
+      serializedValues
+    ] = handler.getInstance().serialize(values)
 
     if (err) {
-      errorHandler(true, {
-        errorDetails,
-        throwOnError: options.throwOnError,
-        giveWarning: options.giveWarning
-      })
+      warningHandler(errDetails)
+      errorHandler(errorDetails)
     }
 
     return serializedValues
   }
 
+  /**
+   * Deserialize function
+   * @param {Object} values
+   * @returns {Object} Deserialized values
+   */
   component.deserialize = values => {
     const [
       err,
       errorDetails,
       deserializedValues
-    ] = handler.getObject().deserialize(values)
+    ] = handler.getInstance().deserialize(values)
 
     if (err) {
-      errorHandler(true, {
-        errorDetails,
-        throwOnError: options.throwOnError,
-        giveWarning: options.giveWarning
-      })
+      warningHandler(errDetails)
+      errorHandler(errorDetails)
     }
 
     return deserializedValues
   }
 
+  /**
+   * Getting instance from original class instance
+   * @returns Object
+   */
+  component.getInstance = () => handler.getInstance()
+
   return component
 }
 
-const arrayComponent = (params, options) => {}
+const arrayComponent = (params, options = {}) => {
+  options = combineObjDefaultOptions(options)
+}
 
 module.exports = {
   object: objectComponent,
