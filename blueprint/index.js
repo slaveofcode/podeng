@@ -6,10 +6,10 @@ const { combineObjDefaultOptions } = require('./utils')
 const { errorInitializer, warningInitializer } = require('./errors')
 
 const createHandler = (schema, isArrayType = false) => {
-  const obj = new cls(schema, { isArrayType })
+  const inst = new cls(schema, { isArrayType })
 
   const handlerFunc = () => {}
-  handlerFunc.getInstance = () => obj
+  handlerFunc.getInstance = () => inst
   handlerFunc.getClass = () => cls
 
   return handlerFunc
