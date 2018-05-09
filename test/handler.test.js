@@ -4,7 +4,7 @@ const { cls: blueprintClass } = require('../blueprint/instance')
 const blueprint = require('../blueprint')
 const types = require('../types')
 
-test.only('Create an instace of blueprint object', () => {
+test('Create an instace of blueprint object', () => {
   const Car = blueprint.object({
     type: types.string
   })
@@ -21,6 +21,7 @@ test('Create an instance of blueprint array', () => {
   const Cars = blueprint.array(Car)
 
   expect(typeof Cars).toEqual('function')
+  expect(Cars.getInstance() instanceof blueprintClass).toBe(true)
 })
 
 test('Make sure blueprint object working with at least one type', () => {
