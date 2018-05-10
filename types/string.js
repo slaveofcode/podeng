@@ -1,6 +1,6 @@
 'use strict';
 
-const { isFunction, isString } = require('./detector');
+const { isFunction, isString, isArray } = require('./detector');
 const {
   trim,
   toUpper,
@@ -18,13 +18,13 @@ const NORMALIZER = {
   upper_first: value => upperFirst(value),
   upper_first_word: value => {
     let upperCasedFirst = [];
-    forEach(value.split(/\s/g), v => upperCasedFirst.push(toUpper(v)));
+    forEach(value.split(/\s/g), v => upperCasedFirst.push(upperFirst(v)));
     return upperCasedFirst.length > 0 ? upperCasedFirst.join(' ') : value;
   },
   lower_first: value => lowerFirst(value),
   lower_first_word: value => {
     let lowerCasedFirst = [];
-    forEach(value.split(/\s/g), v => lowerCasedFirst.push(toLower(v)));
+    forEach(value.split(/\s/g), v => lowerCasedFirst.push(lowerFirst(v)));
     return lowerCasedFirst.length > 0 ? lowerCasedFirst.join(' ') : value;
   },
 };
@@ -61,10 +61,20 @@ const handler = (options = {}) => {
 
     if (!err) parsedVal = result;
 
+    // handle single normalization
     if (!err && options.normalize && NORMALIZER[options.normalize]) {
       parsedVal = NORMALIZER[options.normalize](parsedVal);
     }
 
+    // handle multiple normalization
+    if (!err && options.normalize && isArray(options.normalize)) {
+      forEach(options.normalize, normalizeValue => {
+        if (NORMALIZER[normalizeValue])
+          parsedVal = NORMALIZER[normalizeValue](parsedVal);
+      });
+    }
+
+    // handle custom normalization via custom function
     if (!err && options.normalize && isFunction(options.normalize)) {
       parsedVal = options.normalize(parsedVal);
     }
