@@ -64,11 +64,11 @@ const handler = (options = {}) => {
   });
   options = Object.assign(defaultOptions, options);
 
-  const parser = () => {};
+  const objHandler = () => {};
 
-  parser.validate = validate;
+  objHandler.validate = validate;
 
-  parser.parse = (key, value) => {
+  objHandler.parse = (key, value) => {
     let parsedVal = options.default;
 
     const [err, result] = parseValue(
@@ -111,9 +111,9 @@ const handler = (options = {}) => {
   /**
    * General methods
    */
-  parser.isHideOnFail = () => options.hideOnFail;
+  objHandler.isHideOnFail = () => options.hideOnFail;
 
-  return parser;
+  return objHandler;
 };
 
 module.exports = handler;
