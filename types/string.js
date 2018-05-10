@@ -53,13 +53,17 @@ const handler = (options = {}) => {
   parser.parse = value => {
     let parsedVal = options.default;
 
-    /**
-     * TODO: Validation min, max here
-     */
+    const [err, result] = parseValue(
+      value,
+      options.hideOnFail ? false : options.stringify,
+    );
 
-    const [err, result] = parseValue(value, options.stringify);
+    if (!err) {
+      const validMin = options.min ? value.length >= options.min : true;
+      const validMax = options.max ? value.length <= options.max : true;
 
-    if (!err) parsedVal = result;
+      if (validMin && validMax) parsedVal = result;
+    }
 
     // handle single normalization
     if (!err && options.normalize && NORMALIZER[options.normalize]) {
@@ -88,6 +92,9 @@ const handler = (options = {}) => {
     return [err, parsedVal];
   };
 
+  /**
+   * General methods
+   */
   parser.isHideOnFail = () => options.hideOnFail;
 
   return parser;
