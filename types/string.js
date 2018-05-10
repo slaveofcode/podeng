@@ -41,6 +41,21 @@ const parseValue = (value, stringify = true) => {
   return [err, parsedValue];
 };
 
+const validate = (key, value, options = { min: null, max: null }) => {
+  const errorDetails = [];
+  const { min, max } = options;
+
+  const validMin = min ? value.length >= min : true;
+  if (!validMin) errorDetails.push(`Minimum value of ${key} is ${min}`);
+
+  const validMax = max ? value.length <= max : true;
+  if (!validMax) errorDetails.push(`Maximum value of ${key} is ${max}`);
+
+  const valid = validMin && validMax ? true : false;
+
+  return [errorDetails, valid];
+};
+
 const handler = (options = {}) => {
   const defaultOptions = combineDefaultOptions({
     min: null,
@@ -50,7 +65,10 @@ const handler = (options = {}) => {
   options = Object.assign(defaultOptions, options);
 
   const parser = () => {};
-  parser.parse = value => {
+
+  parser.validate = validate;
+
+  parser.parse = (key, value) => {
     let parsedVal = options.default;
 
     const [err, result] = parseValue(
@@ -59,10 +77,8 @@ const handler = (options = {}) => {
     );
 
     if (!err) {
-      const validMin = options.min ? value.length >= options.min : true;
-      const validMax = options.max ? value.length <= options.max : true;
-
-      if (validMin && validMax) parsedVal = result;
+      const [errorDetails, valid] = validate(key, value, options);
+      if (valid) parsedVal = result;
     }
 
     // handle single normalization
