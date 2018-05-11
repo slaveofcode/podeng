@@ -1,3 +1,8 @@
+/**
+ * This file intended to create a blueprint or feature plan in this project
+ * this also could be used for code documentation about how to use the lib.
+ */
+
 // Parser
 const { blueprint, types, faker, validator } = require('podeng')
 
