@@ -155,10 +155,14 @@ const Mutant = blueprint.extend(
 )
 
 // validating with existing blueprint object
-const [isError, errorDetails] = validator(Mutant).check({
+const [isError, errorDetails] = validator(Mutant, {
+  allowUnknownProperties: true
+}).check({
   breathOnWater: 'Not valid value'
 }) // return status of validation, not throwing error
-validator(Mutant).validate({ breathOnWater: 'Not valid value' }) // throw an error
+validator(Mutant, { allowUnknownProperties: true }).validate({
+  breathOnWater: 'Not valid value'
+}) // throw an error
 
 // keyMutation example
 const FooBar = blueprint.object({
