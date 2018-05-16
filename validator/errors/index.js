@@ -4,6 +4,8 @@ const { forEach } = require('lodash')
 const { isArray } = require('../../types/detector')
 const PodengError = require('./PodengError')
 
+const ERROR_VALIDATION_NAME = 'PodengValidationError'
+
 const warningInspector = objErrorDetails => {
   forEach(objErrorDetails, (value, key) => {
     console.warn(`Podeng Warning: [${key}] ${value}`)
@@ -28,7 +30,7 @@ const errorHandler = options => {
   return errorDetails => {
     if (options.throwOnError) {
       throw new PodengError({
-        name: 'PodengValidationError',
+        name: ERROR_VALIDATION_NAME,
         message: `Validation fails ${JSON.stringify(errorDetails, null, 2)}`,
         details: JSON.stringify(errorDetails)
       })
@@ -43,5 +45,6 @@ const warningInitializer = (options = { giveWarning: false }) =>
 
 module.exports = {
   errorInitializer,
-  warningInitializer
+  warningInitializer,
+  ERROR_VALIDATION_NAME
 }

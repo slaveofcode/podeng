@@ -4,6 +4,8 @@ const { includes, keys, difference } = require('lodash')
 const { cls: blueprintClass } = require('../blueprint/instance')
 const { combineDefaultOptions, makeError } = require('./utils')
 const { isFunction } = require('../types/detector')
+const PodengError = require('./errors/PodengError')
+const { errorInitializer, ERROR_VALIDATION_NAME } = require('./errors')
 
 const ERROR_INVALID_COMPONENT =
   'You must supply blueprint object to create validate'
@@ -31,34 +33,52 @@ const validatorCreator = (component, options = {}) => {
     this.options = options
   }
 
+  const handleUnknownParams = (schema, params, throwing = true) => {
+    let errorUnknownParams = null
+    const unknownParams = difference(keys(params), keys(schema))
+    if (unknownParams.length > 0) {
+      if (throwing) {
+        throw new PodengError({
+          name: ERROR_VALIDATION_NAME,
+          message: showErrorUnknownProperties(unknownParams),
+          details: unknownParams
+        })
+      }
+
+      errorUnknownParams = `Unkown parameter(s) detected: ${unknownParams.join(', ')}`
+    }
+
+    return errorUnknownParams
+  }
+
+  const handleCustomThrows = (errorDetails, isCustomThrowMessage = false) => {
+    if (isFunction(isCustomThrowMessage)) {
+      return isCustomThrowMessage.apply(errorDetails)
+    } else if (isCustomThrowMessage instanceof Error) {
+      throw isCustomThrowMessage
+    }
+  }
+
   const validate = function (params) {
     if (!params) throw new TypeError(ERROR_NO_VALUE_GIVEN)
+
     const [
       err,
       errorDetails,
       normalizedValues
     ] = this.component.getInstance().normalize(params)
 
-    const unknownParams = difference(
-      keys(params),
-      keys(this.component.getSchema())
-    )
-    if (unknownParams.length > 0 && !this.options.allowUnknownProperties) {
-      throw new TypeError(showErrorUnknownProperties(unknownParams))
+    if (err && !this.options.allowUnknownProperties) {
+      handleUnknownParams(this.component.getSchema(), params)
     }
 
-    const ValidationError = makeError('ValidationError')
-
     if (err && options.customThrowMessage) {
-      if (isFunction(options.customThrowMessage)) {
-        return options.customThrowMessage.apply(errorDetails)
-      } else if (options.customThrowMessage instanceof Error) {
-        throw options.customThrowMessage
-      }
+      handleCustomThrow(errorDetails, options.customThrowMessage)
     }
 
     if (err) {
-      throw new ValidationError('Error validation', { details: errorDetails })
+      const errorHandler = errorInitializer({ throwOnError: true })
+      errorHandler(errorDetails)
     }
   }
 
@@ -70,12 +90,15 @@ const validatorCreator = (component, options = {}) => {
       normalizedValues
     ] = this.component.getInstance().normalize(params)
 
-    const unknownParams = difference(
-      keys(params),
-      keys(this.component.getSchema())
-    )
-    if (unknownParams.length > 0 && !this.options.allowUnknownProperties) {
-      errorDetails.push(`Unkown parameter(s) detected: ${unknownParams.join(', ')}`)
+    if (err && !this.options.allowUnknownProperties) {
+      const errorUnknown = handleUnknownParams(
+        this.component.getSchema(),
+        params,
+        false
+      )
+      if (errorUnknown) {
+        errorDetails.unknown_params = errorUnknown
+      }
     }
 
     return [err, errorDetails]
@@ -86,9 +109,4 @@ const validatorCreator = (component, options = {}) => {
   return objValidator
 }
 
-const checker = () => {}
-
-module.exports = {
-  validate: validatorCreator,
-  check: checker
-}
+module.exports = validatorCreator
