@@ -27,6 +27,7 @@ const validatorCreator = (component, options = {}) => {
   const Validator = function (comp, options) {
     this.component = comp
     this.validate = validate
+    this.check = check
     this.options = options
   }
 
@@ -55,15 +56,36 @@ const validatorCreator = (component, options = {}) => {
         throw options.customThrowMessage
       }
     }
+
     if (err) {
       throw new ValidationError('Error validation', { details: errorDetails })
     }
+  }
+
+  const check = function () {
+    if (!params) throw new TypeError(ERROR_NO_VALUE_GIVEN)
+    const [
+      err,
+      errorDetails,
+      normalizedValues
+    ] = this.component.getInstance().normalize(params)
+
+    const unknownParams = difference(
+      keys(params),
+      keys(this.component.getSchema())
+    )
+    if (unknownParams.length > 0 && !this.options.allowUnknownProperties) {
+      errorDetails.push(`Unkown parameter(s) detected: ${unknownParams.join(', ')}`)
+    }
+
+    return [err, errorDetails]
   }
 
   const objValidator = new Validator(component, options)
 
   return objValidator
 }
+
 const checker = () => {}
 
 module.exports = {

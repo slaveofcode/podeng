@@ -7,7 +7,7 @@ const {
   combineObjDefaultOptions,
   combineExtDefaultOptions
 } = require('./utils')
-const { errorInitializer, warningInitializer } = require('./errors')
+const { errorInitializer, warningInitializer } = require('../validator/errors')
 const { isFunction, isArray } = require('../types/detector')
 
 /**

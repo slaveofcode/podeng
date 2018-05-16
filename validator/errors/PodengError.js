@@ -5,6 +5,7 @@ const PodengError = function (options) {
 
   this.name = options.name || 'PodengError'
   this.message = options.message
+  this.details = options.details
   this.cause = options.cause
 
   this._err = new Error()
@@ -19,7 +20,7 @@ PodengError.prototype = Object.create(Error.prototype, {
   }
 })
 
-Object.defineProperty(PodengError, 'stack', {
+Object.defineProperty(PodengError.prototype, 'stack', {
   get: function stack () {
     return (
       this.name +
@@ -72,6 +73,4 @@ Object.defineProperty(PodengError.prototype, 'why', {
 //     console.error(err.cause.stack);
 // }
 
-module.exports = {
-  PodengError
-}
+module.exports = PodengError
