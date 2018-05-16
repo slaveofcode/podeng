@@ -6,7 +6,7 @@ const PodengError = require('./PodengError')
 
 const warningInspector = objErrorDetails => {
   forEach(objErrorDetails, (value, key) => {
-    console.warn(`${key}: ${value}`)
+    console.warn(`Podeng Warning: [${key}] ${value}`)
   })
 }
 

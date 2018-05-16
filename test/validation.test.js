@@ -2,6 +2,7 @@
 
 const blueprint = require('../blueprint')
 const types = require('../types')
+const PodengError = require('../validator/errors/PodengError')
 
 test('Throw error when throw options set via non Validator', () => {
   const Human = blueprint.object(
@@ -10,25 +11,16 @@ test('Throw error when throw options set via non Validator', () => {
       hairColor: types.string
     },
     {
-      throwOnError: true
+      throwOnError: true,
+      giveWarning: true
     }
   )
-
-  try {
-    const johnDoe = Human({ eyeColor: 'Blue', hairColor: () => {} })
-  } catch (err) {
-    // console.log(err)
-    // console.log(err.message)
-    // console.log(err.why)
-    // console.log(err.stack)
-    // console.log(err.details)
-  }
 
   const assignWrongValue = () => {
     const johnDoe = Human({ eyeColor: 'Blue', hairColor: () => {} })
   }
 
-  expect(assignWrongValue).toThrow()
+  expect(assignWrongValue).toThrow(PodengError)
 })
 test('Throw error when validate params via Validator', () => {})
 test('Returns error details when checking params via Validator', () => {})
