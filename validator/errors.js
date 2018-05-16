@@ -33,7 +33,7 @@ Object.defineProperty(PodengError, 'stack', {
 
 Object.defineProperty(PodengError.prototype, 'why', {
   get: function why () {
-    var _why = this.name + ': ' + this.message
+    let _why = this.name + ': ' + this.message
     for (var i = 1; i < this.chain.length; i++) {
       var e = this.chain[i]
       _why += ' <- ' + e.name + ': ' + e.message
