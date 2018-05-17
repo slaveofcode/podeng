@@ -24,7 +24,7 @@ const validatorCreator = (component, options = {}) => {
     }
   }
 
-  const options = combineDefaultOptions(options)
+  options = combineDefaultOptions(options)
 
   const Validator = function (comp, options) {
     this.component = comp
@@ -82,7 +82,7 @@ const validatorCreator = (component, options = {}) => {
     }
   }
 
-  const check = function () {
+  const check = function (params) {
     if (!params) throw new TypeError(ERROR_NO_VALUE_GIVEN)
     const [
       err,
