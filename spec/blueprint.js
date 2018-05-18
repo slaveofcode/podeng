@@ -17,11 +17,11 @@ const Item = blueprint.object(
     someSecretKey: types.string
   },
   {
-    throwOnError: {
+    onError: {
       onKey: (key, value) => {
         throw new Error(`Error on key ${key} with value ${value}`)
       },
-      onAll: (key, value, allParams) => {
+      onAll: allErrorParams => {
         throw new Error(
           `Error on key ${key} with value ${value}and all params ${allParams}`
         )

@@ -72,8 +72,8 @@ const validatorCreator = (component, options = {}) => {
       handleUnknownParams(this.component.getSchema(), params)
     }
 
-    if (err && options.customThrowMessage) {
-      handleCustomThrow(errorDetails, options.customThrowMessage)
+    if (err && this.options.customThrowMessage) {
+      handleCustomThrow(errorDetails, this.options.customThrowMessage)
     }
 
     if (err) {

@@ -2,6 +2,7 @@
 
 const blueprint = require('../blueprint')
 const types = require('../types')
+const PodengError = require('../validator/errors/PodengError')
 
 test('Object include string type', () => {
   const Car = blueprint.object({
@@ -131,4 +132,67 @@ test('Object include string with normalize options', () => {
     value7: 'sOME tEXT hERE',
     value8: 'SOME TEXT HERE'
   })
+})
+
+test('Object include string with validation', () => {
+  const ObjString1 = blueprint.object(
+    {
+      value: types.string
+    },
+    { throwOnError: true }
+  )
+
+  const ObjString2 = blueprint.object(
+    {
+      value: types.string
+    },
+    { throwOnError: TypeError('The Value Error') }
+  )
+
+  const ObjString3 = blueprint.object(
+    {
+      value: types.string
+    },
+    { onError: TypeError('The Value Error') }
+  )
+
+  const ObjString4 = blueprint.object(
+    {
+      value: types.string
+    },
+    {
+      onError: {
+        onKey: (key, err) => {
+          throw new TypeError('Error coming from onKey')
+        }
+      }
+    }
+  )
+
+  const ObjString5 = blueprint.object(
+    {
+      value: types.string
+    },
+    {
+      onError: {
+        onAll: errors => {
+          throw new TypeError('Error coming from onAll')
+        }
+      }
+    }
+  )
+
+  const willThrow = obj => {
+    return () => {
+      obj.call(null, {
+        value: function () {}
+      })
+    }
+  }
+
+  expect(willThrow(ObjString1)).toThrow(PodengError)
+  expect(willThrow(ObjString2)).toThrow(TypeError)
+  expect(willThrow(ObjString3)).not.toThrow()
+  expect(willThrow(ObjString4)).toThrow(TypeError('Error coming from onKey'))
+  expect(willThrow(ObjString5)).toThrow(TypeError('Error coming from onAll'))
 })

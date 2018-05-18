@@ -1,7 +1,7 @@
 'use strict'
 
-const { forEach } = require('lodash')
-const { isArray } = require('../../types/detector')
+const { forEach, get } = require('lodash')
+const { isArray, isObject, isFunction } = require('../../types/detector')
 const PodengError = require('./PodengError')
 
 const ERROR_VALIDATION_NAME = 'PodengValidationError'
@@ -28,17 +28,43 @@ const warningHandler = options => {
 
 const errorHandler = options => {
   return errorDetails => {
-    if (options.throwOnError) {
+    /**
+     * Default error throw
+     */
+    if (options.throwOnError === true) {
       throw new PodengError({
         name: ERROR_VALIDATION_NAME,
         message: `Validation fails ${JSON.stringify(errorDetails, null, 2)}`,
         details: JSON.stringify(errorDetails)
       })
     }
+
+    /**
+     * Handle custom error class
+     */
+    if (options.throwOnError instanceof Error) throw new options.throwOnError()
+
+    /**
+     * exec custom func error
+     */
+    if (isObject(options.onError)) {
+      const onKeyFunction = get(options.onError, 'onKey')
+      const onAllFunction = get(options.onError, 'onAll')
+
+      if (isFunction(onKeyFunction)) {
+        forEach(errorDetails, (err, key) => {
+          onKeyFunction.call(null, key, err)
+        })
+      }
+
+      if (isFunction(onAllFunction)) {
+        onAllFunction.call(null, errorDetails)
+      }
+    }
   }
 }
 
-const errorInitializer = (options = { throwOnError: false }) =>
+const errorInitializer = (options = { throwOnError: false, onError: {} }) =>
   errorHandler(options)
 const warningInitializer = (options = { giveWarning: false }) =>
   warningHandler(options)

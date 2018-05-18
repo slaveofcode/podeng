@@ -54,11 +54,13 @@ const componentCreator = isArrayComponent => {
 
     options = combineObjDefaultOptions(options)
 
+    const { onError, throwOnError, giveWarning } = options
     const errorHandler = errorInitializer({
-      throwOnError: options.throwOnError
+      onError,
+      throwOnError
     })
     const warningHandler = warningInitializer({
-      giveWarning: options.giveWarning
+      giveWarning
     })
 
     /**
