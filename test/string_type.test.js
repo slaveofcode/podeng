@@ -204,6 +204,14 @@ test('Will validate using custom value', () => {
     })
   })
 
+  const Obj2 = blueprint.object({
+    value: types.string({
+      validate: val => val !== '123',
+      default: () => '54321'
+    })
+  })
+
   expect(Obj({ value: '123' })).toEqual({ value: null })
   expect(Obj({ value: '321' })).toEqual({ value: '321' })
+  expect(Obj2({ value: '123' })).toEqual({ value: '54321' })
 })
