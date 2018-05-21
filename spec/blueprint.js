@@ -111,7 +111,7 @@ const asianFoodEvaluator = (food, evaluatedValue) => {
 }
 
 const Food = blueprint.object({
-  name: types.string,
+  name: types.string({ hideOnFail: true }),
   isSpicy: types.conditions({
     evaluates: foodEvaluator,
     onTrue: 'Yes',

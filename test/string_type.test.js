@@ -196,3 +196,14 @@ test('Object include string with validation', () => {
   expect(willThrow(ObjString4)).toThrow(TypeError('Error coming from onKey'))
   expect(willThrow(ObjString5)).toThrow(TypeError('Error coming from onAll'))
 })
+
+test('Will validate using custom value', () => {
+  const Obj = blueprint.object({
+    value: types.string({
+      validate: val => val !== '123'
+    })
+  })
+
+  expect(Obj({ value: '123' })).toEqual({ value: null })
+  expect(Obj({ value: '321' })).toEqual({ value: '321' })
+})
