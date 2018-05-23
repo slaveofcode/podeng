@@ -8,6 +8,10 @@ const DEFAULT_OPTIONS = {
   serialize: {
     to: null,
     display: true
+  },
+  deserialize: {
+    from: null,
+    display: true
   }
 };
 

@@ -142,10 +142,24 @@ const handler = (options = {}) => {
       : null;
 
   /**
+   * Returning deserialized name if set
+   * default is null
+   */
+  objHandler.getDeserializeName = () =>
+    isString(options.deserialize.from) || isNumber(options.deserialize.from)
+      ? options.deserialize.from
+      : null;
+
+  /**
    * Returning status of hide the value on serialization
    */
   objHandler.isHideOnSerialization = () =>
     !(isBoolean(options.serialize.display) ? options.serialize.display : true);
+
+  objHandler.isHideOnDeserialization = () =>
+    !(isBoolean(options.deserialize.display)
+      ? options.deserialize.display
+      : true);
 
   /**
    * General methods

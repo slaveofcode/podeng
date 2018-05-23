@@ -87,10 +87,60 @@ const serializeValue = function (valuesToSerialize) {
   return [isError, errorDetails, serialized];
 };
 
-const deserializeValue = function (values) {
-  // TODO: Check this.isArray type to treat values differently
-  console.log(`Deserialize value processed with schema: ${this.schema}`);
-  return [false, null, { deserializedkey1: 'fooo' }];
+const deserializeValue = function (valuesToDeserialize) {
+  if (this.isArray && !isArray(valuesToDeserialize)) {
+    throw new TypeError('Wrong value type, you must supply array values!');
+  }
+
+  const deserialize = (objValue, schema) => {
+    const deserialized = {};
+    const errorResults = {};
+
+    forEach(schema, (typeHandler, key) => {
+      const handler = initiateTypeHandler(typeHandler);
+
+      const deserializeFrom =
+        handler.getDeserializeName() === null
+          ? handler.getSerializeName() === null
+            ? key
+            : handler.getSerializeName()
+          : handler.getDeserializeName();
+
+      const [fail, normalizedValue] = handler.parse(
+        deserializeFrom,
+        objValue[deserializeFrom]
+      );
+
+      if (!fail || (fail && !handler.isHideOnFail())) {
+        if (!handler.isHideOnSerialization()) {
+          deserialized[key] = normalizedValue;
+        }
+      }
+
+      if (fail) errorResults[key] = `failed to parse ${key} as a String type`;
+    });
+
+    return [errorResults, deserialized];
+  };
+
+  if (!this.isArray) {
+    const [errors, normalizedResult] = deserialize(
+      valuesToDeserialize,
+      this.schema
+    );
+    return [keys(errors).length > 0, errors, normalizedResult];
+  } else {
+    const results = valuesToDeserialize.map(v => deserialize(v, this.schema));
+    const allErrors = [];
+    const normalizedResults = [];
+
+    forEach(results, ([errors, normalized]) => {
+      if (errors.length > 0) allErrors.push(errors);
+      normalizedResults.push(normalized);
+    });
+
+    return [allErrors.length > 0, allErrors, normalizedResults];
+  }
 };
 
 module.exports = {
