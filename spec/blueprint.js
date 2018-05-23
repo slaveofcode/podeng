@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * This file intended to create a blueprint or feature plan in this project
  * this also could be used for code documentation about how to use the lib.
@@ -14,7 +15,7 @@ const Item = blueprint.object(
   {
     categoryName: types.string,
     categoryId: types.number,
-    someSecretKey: types.string
+    someSecretKey: types.string,
   },
   {
     onError: {
@@ -25,15 +26,15 @@ const Item = blueprint.object(
         throw new Error(
           `Error on key ${key} with value ${value}and all params ${allParams}`
         )
-      }
-    }
+      },
+    },
   }
 )
 
 // Creating serializer from
 const parsedItem = Item({
   categoryName: 'cars',
-  categoryId: '1'
+  categoryId: '1',
 })
 
 // Creating blueprint of array of object
@@ -45,18 +46,18 @@ const Cars = blueprint.array({
   type: types.string,
   brand: types.constant(['Honda', 'Toyota', 'Ford']), // constant could be a primitive types, blueprint object (not array), with single or multiple (array) values
   variant: types.constant([Color, Item]),
-  color: types.constant(Color)
+  color: types.constant(Color),
 })
 
 const parsedItems = Items([
   {
     categoryName: 'cars',
-    categoryId: '1'
+    categoryId: '1',
   },
   {
     categoryName: 'colors',
-    categoryId: '2'
-  }
+    categoryId: '2',
+  },
 ])
 
 // Creating more complex blueprint object
@@ -67,7 +68,7 @@ const Person = blueprint.object(
       min: 4,
       max: 50,
       normalize: 'upper_first_word',
-      default: 'No Names'
+      default: 'No Names',
     }),
     phone: type.ext.phone,
     credit_card: type.ext.credit_card,
@@ -75,15 +76,15 @@ const Person = blueprint.object(
     someComplexArray: type.array({
       id: type.number,
       name: type.string,
-      default: null
+      default: null,
     }),
     arrayItemOfObj: type.array(Item, { default: [] }),
-    arrayItems: Items
+    arrayItems: Items,
   },
   {
     frozen: true, // Freeze the returned object
     giveWarning: true, // warning on wrong value given
-    throwOnError: true // throw error on wrong value given
+    throwOnError: true, // throw error on wrong value given
   }
 )
 
@@ -93,7 +94,7 @@ const spicyEvaluator = food => {
     'gado-gado': true,
     pizza: true,
     steak: false,
-    tomyum: true
+    tomyum: true,
   }
 
   return foodEvaluator[food]
@@ -104,7 +105,7 @@ const asianFoodEvaluator = (food, evaluatedValue) => {
     'gado-gado': true,
     pizza: false,
     steak: false,
-    tomyum: true
+    tomyum: true,
   }
 
   return evaluatedValue && asianFoodEvaluator[food]
@@ -115,23 +116,23 @@ const Food = blueprint.object({
   isSpicy: types.conditions({
     evaluates: foodEvaluator,
     onTrue: 'Yes',
-    onFalse: 'No'
+    onFalse: 'No',
   }),
   isSpicyShorthand: conditions(foodEvaluator, 'Yes', 'No'),
   isSpicyAndFromAsian: types.conditions({
     evaluates: [foodEvaluator, asianFoodEvaluator],
     onTrue: 'Yes',
-    onFalse: 'No'
+    onFalse: 'No',
   }),
   isFoodIsSpicyAndFromAsian: types.conditions({
     evaluates: foodEvaluator,
     onTrue: types.conditions({
       evaluates: asianFoodEvaluator,
       onTrue: 'True Asian Spicy Food',
-      onFalse: 'No'
+      onFalse: 'No',
     }),
-    onFalse: 'No'
-  })
+    onFalse: 'No',
+  }),
 })
 
 // Creating fake data
@@ -143,31 +144,31 @@ const Mutant = blueprint.extend(
   Person,
   {
     breathOnWater: type.bool,
-    ability: type.constant(['Fly', 'Run Faster', 'Jump High'])
+    ability: type.constant(['Fly', 'Run Faster', 'Jump High']),
   },
   {
     giveWarning: false,
-    throwOnError: false
+    throwOnError: false,
   },
   {
-    deleteProperties: ['id', 'hobby']
+    deleteProperties: ['id', 'hobby'],
   }
 )
 
 // validating with existing blueprint object
 const [isError, errorDetails] = validator(Mutant, {
-  allowUnknownProperties: true
+  allowUnknownProperties: true,
 }).check({
-  breathOnWater: 'Not valid value'
+  breathOnWater: 'Not valid value',
 }) // return status of validation, not throwing error
 validator(Mutant, { allowUnknownProperties: true }).validate({
-  breathOnWater: 'Not valid value'
+  breathOnWater: 'Not valid value',
 }) // throw an error
 
 // keyMutation example
 const FooBar = blueprint.object({
   id: type.integer({ serialize: { display: false } }),
-  thing: type.string({ serialize: { to: 'something' } })
+  thing: type.string({ serialize: { to: 'something' } }),
 })
 
 const foo = FooBar({ id: '343', thing: 'boooo laaa' }) // { id: 343, thing: 'boooo laaa' }

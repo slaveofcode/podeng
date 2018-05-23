@@ -1,0 +1,17 @@
+{
+  "env": {
+    "es6": true,
+    "jest": true
+  },
+  "extends": "standard",
+  "rules": {
+    "semi": [
+      "error",
+      "always"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ]
+  }
+}

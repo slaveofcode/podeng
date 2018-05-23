@@ -9,17 +9,14 @@
   "scripts": {
     "test": "jest"
   },
+  "lint-staged": {
+    "*.js": ["eslint --fix", "git add"]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/slaveofcode/podeng.git"
   },
-  "keywords": [
-    "json",
-    "json-validator",
-    "json-handler",
-    "parser",
-    "validator"
-  ],
+  "keywords": ["json", "json-validator", "json-handler", "parser", "validator"],
   "author": "Aditya Kresna Permana",
   "license": "MIT",
   "bugs": {
@@ -27,6 +24,12 @@
   },
   "homepage": "https://github.com/slaveofcode/podeng#readme",
   "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.1.0",
     "jest": "^22.4.3"
   }
 }

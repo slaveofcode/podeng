@@ -1,16 +1,16 @@
-'use strict'
+'use strict';
 
 const PodengError = function (options) {
-  options = options || {}
+  options = options || {};
 
-  this.name = options.name || 'PodengError'
-  this.message = options.message
-  this.details = options.details
-  this.cause = options.cause
+  this.name = options.name || 'PodengError';
+  this.message = options.message;
+  this.details = options.details;
+  this.cause = options.cause;
 
-  this._err = new Error()
-  this.chain = this.cause ? [this].concat(this.cause.chain) : [this]
-}
+  this._err = new Error();
+  this.chain = this.cause ? [this].concat(this.cause.chain) : [this];
+};
 
 PodengError.prototype = Object.create(Error.prototype, {
   constructor: {
@@ -18,7 +18,7 @@ PodengError.prototype = Object.create(Error.prototype, {
     writable: true,
     configurable: true
   }
-})
+});
 
 Object.defineProperty(PodengError.prototype, 'stack', {
   get: function stack () {
@@ -28,20 +28,20 @@ Object.defineProperty(PodengError.prototype, 'stack', {
       this.message +
       '\n' +
       this._err.stack.split('\n').slice(2).join('\n')
-    )
+    );
   }
-})
+});
 
 Object.defineProperty(PodengError.prototype, 'why', {
   get: function why () {
-    let _why = this.name + ': ' + this.message
+    let _why = this.name + ': ' + this.message;
     for (var i = 1; i < this.chain.length; i++) {
-      var e = this.chain[i]
-      _why += ' <- ' + e.name + ': ' + e.message
+      var e = this.chain[i];
+      _why += ' <- ' + e.name + ': ' + e.message;
     }
-    return _why
+    return _why;
   }
-})
+});
 
 /**
  * How to Use
@@ -73,4 +73,4 @@ Object.defineProperty(PodengError.prototype, 'why', {
 //     console.error(err.cause.stack);
 // }
 
-module.exports = PodengError
+module.exports = PodengError;
