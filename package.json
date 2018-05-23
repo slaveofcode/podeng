@@ -10,13 +10,22 @@
     "test": "jest"
   },
   "lint-staged": {
-    "*.js": ["eslint --fix", "git add"]
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/slaveofcode/podeng.git"
   },
-  "keywords": ["json", "json-validator", "json-handler", "parser", "validator"],
+  "keywords": [
+    "json",
+    "json-validator",
+    "json-handler",
+    "parser",
+    "validator"
+  ],
   "author": "Aditya Kresna Permana",
   "license": "MIT",
   "bugs": {

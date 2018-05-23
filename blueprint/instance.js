@@ -47,7 +47,10 @@ const normalizeValue = function (valuesToNormalize) {
   };
 
   if (!this.isArray) {
-    const [errors, normalizedResult] = normalize(valuesToNormalize, this.schema);
+    const [errors, normalizedResult] = normalize(
+      valuesToNormalize,
+      this.schema
+    );
     return [keys(errors).length > 0, errors, normalizedResult];
   } else {
     const results = valuesToNormalize.map(v => normalize(v, this.schema));
@@ -65,21 +68,23 @@ const normalizeValue = function (valuesToNormalize) {
 
 const serializeValue = function (valuesToSerialize) {
   const serialized = {};
-  const [isError, errorDetails, normalizedValues] = this.normalizeValue(
+  const [isError, errorDetails, normalizedValues] = this.normalize(
     valuesToSerialize
   );
+
+  const normalizedKeys = Object.keys(normalizedValues);
   forEach(this.schema, (typeHandler, key) => {
     const handler = initiateTypeHandler(typeHandler);
-    if (normalizedValues[key]) {
-      const serializedTo = handler.serialize();
-      if (serializedTo !== null) {
-        serialized[serializedTo] = normalizedValues[key];
+    if (includes(normalizedKeys, key) && !handler.isHideOnSerialization()) {
+      const serializeTo = handler.getSerializeName();
+      if (serializeTo !== null) {
+        serialized[serializeTo] = normalizedValues[key];
       } else {
         serialized[key] = normalizedValues[key];
       }
     }
   });
-  return [isError, errorDetails, serializeValue];
+  return [isError, errorDetails, serialized];
 };
 
 const deserializeValue = function (values) {

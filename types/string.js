@@ -1,8 +1,13 @@
 'use strict';
 
-const { isFunction, isString, isArray } = require('./detector');
 const {
-  get,
+  isFunction,
+  isString,
+  isArray,
+  isNumber,
+  isBoolean
+} = require('./detector');
+const {
   trim,
   toUpper,
   toLower,
@@ -35,7 +40,9 @@ const parseValue = (value, stringify = true) => {
   let err = null;
   const parsedValue = isString(value)
     ? value
-    : stringify ? JSON.stringify(value) : undefined;
+    : stringify
+      ? JSON.stringify(value)
+      : undefined;
 
   if (!parsedValue) err = true;
   return [err, parsedValue];
@@ -119,7 +126,17 @@ const handler = (options = {}) => {
     return [err, parsedVal];
   };
 
-  objHandler.serialize = () => get(options, 'serialize.to', null);
+  /**
+   * Returning serialized name if set
+   * default is null
+   */
+  objHandler.getSerializeName = () =>
+    isString(options.serialize.to) || isNumber(options.serialize.to)
+      ? options.serialize.to
+      : null;
+
+  objHandler.isHideOnSerialization = () =>
+    !(isBoolean(options.serialize.display) ? options.serialize.display : true);
 
   /**
    * General methods

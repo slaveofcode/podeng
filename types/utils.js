@@ -5,7 +5,10 @@ const DEFAULT_OPTIONS = {
   hideOnFail: false,
   default: null,
   validate: null,
-  serialize: {}
+  serialize: {
+    to: null,
+    display: true
+  }
 };
 
 const combineDefaultOptions = options =>
