@@ -63,19 +63,15 @@ const validate = (key, value, options = { min: null, max: null }) => {
   return [errorDetails, valid];
 };
 
-const handler = (options = {}) => {
-  const defaultOptions = combineDefaultOptions({
+const getOptions = () =>
+  combineDefaultOptions({
     min: null,
     max: null,
     normalize: null
   });
-  options = Object.assign(defaultOptions, options);
 
-  const objHandler = () => {};
-
-  objHandler.validate = validate;
-
-  objHandler.parse = (key, value) => {
+const parserMaker = options => {
+  return (key, value) => {
     let parsedVal = options.default;
 
     /**
@@ -125,6 +121,16 @@ const handler = (options = {}) => {
 
     return [err, parsedVal];
   };
+};
+
+const handler = (options = {}) => {
+  options = Object.assign(getOptions(), options);
+
+  const objHandler = () => {};
+
+  objHandler.validate = validate;
+
+  objHandler.parse = parserMaker(options);
 
   /**
    * Returning serialized name if set
@@ -135,6 +141,9 @@ const handler = (options = {}) => {
       ? options.serialize.to
       : null;
 
+  /**
+   * Returning status of hide the value on serialization
+   */
   objHandler.isHideOnSerialization = () =>
     !(isBoolean(options.serialize.display) ? options.serialize.display : true);
 
