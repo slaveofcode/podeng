@@ -2,6 +2,7 @@
 
 const { isFunction, isString, isArray } = require('./detector');
 const {
+  get,
   trim,
   toUpper,
   toLower,
@@ -117,6 +118,8 @@ const handler = (options = {}) => {
 
     return [err, parsedVal];
   };
+
+  objHandler.serialize = () => get(options, 'serialize.to', null);
 
   /**
    * General methods

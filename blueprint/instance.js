@@ -11,15 +11,20 @@ const cls = function (schema, { isArray = false }) {
   this.deserialize = deserializeValue;
 };
 
-const normalizeValue = function (valuesToNormalize) {
-  const initiateTypeHandler = typehandler => {
-    if (includes(keys(typehandler), 'parse')) {
-      return typehandler;
-    } else {
-      return typehandler();
-    }
-  };
+/**
+ * Resolving type handler, if user didn't execute the function
+ * it will be auto initialized
+ * @param {*} typehandler
+ */
+const initiateTypeHandler = typehandler => {
+  if (includes(keys(typehandler), 'parse')) {
+    return typehandler;
+  } else {
+    return typehandler();
+  }
+};
 
+const normalizeValue = function (valuesToNormalize) {
   if (this.isArray && !isArray(valuesToNormalize)) {
     throw new TypeError('Wrong value type, you must supply array values!');
   }
@@ -58,10 +63,23 @@ const normalizeValue = function (valuesToNormalize) {
   }
 };
 
-const serializeValue = function (values) {
-  // TODO: Check this.isArray type to treat values differently
-  console.log(`Serialize value processed with schema: ${this.schema}`);
-  return [false, null, { serializedkey1: 'fooo' }];
+const serializeValue = function (valuesToSerialize) {
+  const serialized = {};
+  const [isError, errorDetails, normalizedValues] = this.normalizeValue(
+    valuesToSerialize
+  );
+  forEach(this.schema, (typeHandler, key) => {
+    const handler = initiateTypeHandler(typeHandler);
+    if (normalizedValues[key]) {
+      const serializedTo = handler.serialize();
+      if (serializedTo !== null) {
+        serialized[serializedTo] = normalizedValues[key];
+      } else {
+        serialized[key] = normalizedValues[key];
+      }
+    }
+  });
+  return [isError, errorDetails, serializeValue];
 };
 
 const deserializeValue = function (values) {
