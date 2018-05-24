@@ -73,3 +73,24 @@ test('Frozen and Non frozen object', () => {
     color: 'blue'
   });
 });
+
+test('Multi level object', () => {
+  const value1 = blueprint.object({
+    value: types.string
+  });
+  const branch1 = blueprint.object({
+    value: value1
+  });
+
+  const branches = blueprint.object({
+    branch1: branch1
+  });
+
+  expect(
+    branches({
+      branch1: {
+        value: 'abc'
+      }
+    })
+  ).toEqual({ branch1: { value: 'abc' } });
+});

@@ -1,7 +1,7 @@
 'use strict';
 
 const { isArray } = require('../types/detector');
-const { includes, keys, forEach } = require('lodash');
+const { includes, keys, forEach, get } = require('lodash');
 
 const cls = function (schema, { isArray = false }) {
   this.isArray = isArray;
@@ -35,22 +35,35 @@ const normalizeValue = function (valuesToNormalize) {
 
     forEach(schema, (typeHandler, key) => {
       const handler = initiateTypeHandler(typeHandler);
-      const [fail, normalizedValue] = handler.parse(key, objValue[key]);
-      if (!fail || (fail && !handler.isHideOnFail())) {
-        normalized[key] = normalizedValue;
-      }
 
-      if (fail) errorResults[key] = `failed to parse ${key} as a String type`;
+      // checking handler is an obj of blueprint class
+      // so we do recursive operation
+      if (get(handler, 'getInstance') && handler.getInstance() instanceof cls) {
+        const [childErrorResults, childNormalized] = normalize(
+          objValue[key],
+          handler.getInstance().schema
+        );
+
+        if (keys(childErrorResults).length > 0) {
+          errorResults[key] = childErrorResults;
+        }
+
+        normalized[key] = childNormalized;
+      } else {
+        const [fail, normalizedValue] = handler.parse(key, objValue[key]);
+        if (!fail || (fail && !handler.isHideOnFail())) {
+          normalized[key] = normalizedValue;
+        }
+
+        if (fail) errorResults[key] = `failed to parse ${key} as a String type`;
+      }
     });
 
     return [errorResults, normalized];
   };
 
   if (!this.isArray) {
-    const [errors, normalizedResult] = normalize(
-      valuesToNormalize,
-      this.schema
-    );
+    const [errors, normalizedResult] = normalize(valuesToNormalize, this.schema);
     return [keys(errors).length > 0, errors, normalizedResult];
   } else {
     const results = valuesToNormalize.map(v => normalize(v, this.schema));
@@ -99,12 +112,9 @@ const deserializeValue = function (valuesToDeserialize) {
     forEach(schema, (typeHandler, key) => {
       const handler = initiateTypeHandler(typeHandler);
 
-      const deserializeFrom =
-        handler.getDeserializeName() === null
-          ? handler.getSerializeName() === null
-            ? key
-            : handler.getSerializeName()
-          : handler.getDeserializeName();
+      const deserializeFrom = handler.getDeserializeName() === null
+        ? handler.getSerializeName() === null ? key : handler.getSerializeName()
+        : handler.getDeserializeName();
 
       const [fail, normalizedValue] = handler.parse(
         deserializeFrom,
