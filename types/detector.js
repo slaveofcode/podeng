@@ -1,16 +1,16 @@
 'use strict';
 
-const ARRAY_V = "[object Array]";
-const OBJECT_V = "[object Object]";
-const STRING_V = "[object String]";
-const FUNC_V = "[object Function]";
-const NUMBER_V = "[object Number]";
-const BOOL_V = "[object Boolean]";
-const NULL_V = "[object Null]";
-const DATE_V = "[object Date]";
-const UNDEF_V = "[object Undefined]";
-const ERROR_V = "[object Error]";
-const SYMBOL_V = "[object Symbol]";
+const ARRAY_V = '[object Array]';
+const OBJECT_V = '[object Object]';
+const STRING_V = '[object String]';
+const FUNC_V = '[object Function]';
+const NUMBER_V = '[object Number]';
+const BOOL_V = '[object Boolean]';
+const NULL_V = '[object Null]';
+const DATE_V = '[object Date]';
+const UNDEF_V = '[object Undefined]';
+const ERROR_V = '[object Error]';
+const SYMBOL_V = '[object Symbol]';
 
 const comparator = comp => {
   return obj => Object.prototype.toString.call(obj) === comp;
@@ -29,7 +29,11 @@ const isError = comparator(ERROR_V);
 const isSymbol = comparator(SYMBOL_V);
 const isInt = num => !isSymbol(num) && Number(num) === num && num % 1 === 0;
 const isFloat = num => !isSymbol(num) && Number(num) === num && num % 1 !== 0;
-const isStringFloat = num => !isNull(num) && !isFloat(num) && !isNaN(num) && num.toString().indexOf(".") != -1;
+const isStringFloat = num =>
+  !isNull(num) &&
+  !isFloat(num) &&
+  !isNaN(num) &&
+  num.toString().indexOf('.') !== -1;
 
 module.exports = {
   isArray,
@@ -45,5 +49,5 @@ module.exports = {
   isSymbol,
   isInt,
   isFloat,
-  isStringFloat,
+  isStringFloat
 };

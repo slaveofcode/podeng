@@ -1,115 +1,209 @@
 'use strict';
 
-const _ = require('lodash');
+const { includes, keys, forEach } = require('lodash');
+const {
+  cls: BlueprintClass,
+  embedCls: BlueprintEmbedClass
+} = require('./instance');
 const types = require('../types');
+const {
+  combineObjDefaultOptions,
+  combineExtDefaultOptions
+} = require('./utils');
+const { errorInitializer, warningInitializer } = require('../validator/errors');
+const { isFunction, isArray } = require('../types/detector');
 
-const createHandler = (schema, isArrayType = false) => {
-  const cls = function(schema, { isArray = false }) {
-    this.isArray = isArray;
-    this.schema = schema;
-    this.processValue = processValue;
-    this.serialize = serializeValue;
-    this.deserialize = deserializeValue;
-  };
+/**
+ * Creating new instance and return as handler function
+ * @param {Object} schema
+ * @param {Object} options
+ * @param {boolean} isArrayType
+ */
+const createHandler = (schema, options, isArrayType = false) => {
+  const inst = new BlueprintClass(schema, options, { isArray: isArrayType });
 
-  const processValue = function(values) {
-    console.log(`Value processed with schema: ${this.schema}`);
-    return [false, null, { key1: 'fooo' }];
-  };
+  const handlerFunc = () => {};
+  handlerFunc.getInstance = () => inst;
+  handlerFunc.getClass = () => BlueprintClass;
 
-  const serializeValue = function(values) {
-    console.log(`Serialize value processed with schema: ${this.schema}`);
-    return [false, null, { serializedkey1: 'fooo' }];
-  };
+  return handlerFunc;
+};
 
-  const deserializeValue = function(values) {
-    console.log(`Deserialize value processed with schema: ${this.schema}`);
-    return [false, null, { deserializedkey1: 'fooo' }];
-  };
+/**
+ * Deep freezing object recursively
+ * @param {Object} obj
+ */
+const freezeObject = obj => {
+  keys(obj).forEach(name => {
+    const prop = obj[name];
+    if (typeof prop === 'object' && prop !== null) freezeObject(prop);
+  });
 
-  const initHandler = () => {
-    const obj = new cls(schema, { isArrayType });
+  return Object.freeze(obj);
+};
 
-    const doProcessValue = values => {
-      console.log('Evaluating input values');
-      console.log('Object process calling: ');
-      return obj.processValue(values);
+const componentCreator = isArrayComponent => {
+  return (params, options = {}) => {
+    options = combineObjDefaultOptions(options);
+
+    /**
+     * Detect params passed as a component instead of a json
+     */
+    let handler;
+    if (includes(keys(params), 'getHandler') && isFunction(params.getHandler)) {
+      // Re-creating handler from existing components also copying the options
+      handler = createHandler(params.getParams(), options, isArrayComponent);
+      options = params.getOptions();
+    } else {
+      handler = createHandler(params, options, isArrayComponent);
+    }
+
+    const { onError, throwOnError, giveWarning } = options;
+    const errorHandler = errorInitializer({
+      onError,
+      throwOnError
+    });
+    const warningHandler = warningInitializer({
+      giveWarning
+    });
+
+    /**
+     * Normalize function
+     * @param {Object} values
+     * @returns {Object} Normalized values
+     */
+    const component = function (values) {
+      const [
+        err,
+        errorDetails,
+        normalizedValues
+      ] = handler.getInstance().normalize(values);
+
+      if (err) {
+        warningHandler(errorDetails);
+        errorHandler(errorDetails);
+      }
+
+      return options.frozen ? freezeObject(normalizedValues) : normalizedValues;
     };
 
-    // default process
-    const handlerFunc = values => doProcessValue(values);
+    /**
+     * Serialize function
+     * @param {Object} values
+     * @returns {Object} Serialized values
+     */
+    component.serialize = values => {
+      const [
+        err,
+        errorDetails,
+        serializedValues
+      ] = handler.getInstance().serialize(values);
+      if (err) {
+        warningHandler(errorDetails);
+        errorHandler(errorDetails);
+      }
 
-    handlerFunc.getObject = () => obj;
-    handlerFunc.getClass = () => cls;
+      return options.frozen ? freezeObject(serializedValues) : serializedValues;
+    };
 
-    return handlerFunc;
+    /**
+     * Deserialize function
+     * @param {Object} values
+     * @returns {Object} Deserialized values
+     */
+    component.deserialize = values => {
+      const [
+        err,
+        errorDetails,
+        deserializedValues
+      ] = handler.getInstance().deserialize(values);
+
+      if (err) {
+        warningHandler(errorDetails);
+        errorHandler(errorDetails);
+      }
+
+      return options.frozen
+        ? freezeObject(deserializedValues)
+        : deserializedValues;
+    };
+
+    component.embed = options =>
+      new BlueprintEmbedClass(handler.getInstance(), options);
+
+    /**
+     * Return handler from this component
+     * @returns Object
+     */
+    component.getHandler = () => handler;
+
+    /**
+     * Return instance from original class instance
+     * @returns Object
+     */
+    component.getInstance = () => handler.getInstance();
+
+    /**
+     * Get Schema from class instance
+     * @returns Object
+     */
+    component.getSchema = () => handler.getInstance().schema;
+
+    component.getParams = () => Object.assign({}, params);
+    component.getOptions = () => Object.assign({}, options);
+
+    return component;
   };
-
-  return initHandler();
 };
 
-const objectComponent = (
+const extensibleComponent = (
+  component,
   params,
-  options = { giveWarning: false, throwOnError: false },
+  options = {},
+  extendOptions = {}
 ) => {
-  const handler = createHandler(params);
+  if (isArray(component)) {
+    throw new TypeError(
+      'To extend you need to pass blueprint object not array!'
+    );
+  }
 
-  const errorHandler = (
-    isWarning,
-    { errorDetails, throwOnError, giveWarning },
-  ) => {
-    if (isWarning) {
-      // check if giveWarning type is object, probably should display warning on specific key with custom handler
-      // show warning here
-    } else {
-      // check if throwOnError type is object, probably should throw error on specific key with custom handler
-      // throw error here
-    }
+  const hasInstanceFunc = includes(keys(component), 'getInstance');
+
+  if (!hasInstanceFunc) {
+    throw new TypeError('To extend you must pass blueprint object!');
+  }
+  if (!(component.getInstance() instanceof BlueprintClass)) {
+    throw new TypeError('To extend you must pass blueprint object!');
+  }
+
+  options = combineObjDefaultOptions(options);
+  const extOptions = combineExtDefaultOptions(extendOptions);
+
+  const originalParams = component.getParams();
+  const originalOptions = component.getOptions();
+
+  const deleteProperties = (params, listPropsToDelete) => {
+    forEach(listPropsToDelete, propName => {
+      if (originalParams[propName]) {
+        delete params[propName];
+      }
+    });
   };
 
-  const component = function(values) {
-    const [err, errDetails, normalizedValues] = handler(values);
-  };
+  if (extOptions.deleteProperties.length > 0) {
+    deleteProperties(originalParams, extOptions.deleteProperties);
+  }
 
-  component.serialize = values => {
-    const [err, errorDetails, serializedValues] = handler
-      .getObject()
-      .serialize(values);
+  const finalParams = Object.assign({}, originalParams, params);
+  const finalOptions = Object.assign({}, originalOptions, options);
 
-    if (err)
-      errorHandler(true, {
-        errorDetails,
-        throwOnError: options.throwOnError,
-        giveWarning: options.giveWarning,
-      });
-
-    return serializedValues;
-  };
-
-  component.deserialize = values => {
-    const [
-      err,
-      errorDetails,
-      deserializedValues,
-    ] = handler.getObject().deserialize(values);
-
-    if (err)
-      errorHandler(true, {
-        errorDetails,
-        throwOnError: options.throwOnError,
-        giveWarning: options.giveWarning,
-      });
-
-    return deserializedValues;
-  };
-
-  return component;
+  return componentCreator(false)(finalParams, finalOptions);
 };
-
-const arrayComponent = (params, options) => {};
 
 module.exports = {
-  object: objectComponent,
-  array: arrayComponent,
-  types,
+  object: componentCreator(false),
+  array: componentCreator(true),
+  extend: extensibleComponent,
+  types
 };
