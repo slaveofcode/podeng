@@ -1,7 +1,7 @@
 'use strict';
 
-const { isArray } = require('../types/detector');
-const { includes, keys, forEach, get } = require('lodash');
+const { isArray, isFunction } = require('../types/detector');
+const { includes, keys, forEach } = require('lodash');
 
 const cls = function (schema, { isArray = false }) {
   this.isArray = isArray;
@@ -9,6 +9,18 @@ const cls = function (schema, { isArray = false }) {
   this.normalize = normalizeValue;
   this.serialize = serializeValue;
   this.deserialize = deserializeValue;
+};
+
+const embedCls = function (instanceCls, options = {}) {
+  this.options = options;
+  this.instance = instanceCls;
+
+  this.getOptions = function () {
+    return this.options;
+  };
+  this.getObject = function () {
+    return this.instance;
+  };
 };
 
 /**
@@ -24,6 +36,11 @@ const initiateTypeHandler = typehandler => {
   }
 };
 
+const resolveEmbededObj = obj =>
+  (isFunction(obj.embed) && obj.embed() instanceof embedCls
+    ? obj.embed()
+    : obj instanceof embedCls ? obj : null);
+
 const normalizeValue = function (valuesToNormalize) {
   if (this.isArray && !isArray(valuesToNormalize)) {
     throw new TypeError('Wrong value type, you must supply array values!');
@@ -34,22 +51,28 @@ const normalizeValue = function (valuesToNormalize) {
     const errorResults = {};
 
     forEach(schema, (typeHandler, key) => {
-      const handler = initiateTypeHandler(typeHandler);
-
-      // checking handler is an obj of blueprint class
+      // checking handler is an embedded class
       // so we do recursive operation
-      if (get(handler, 'getInstance') && handler.getInstance() instanceof cls) {
-        const [childErrorResults, childNormalized] = normalize(
-          objValue[key],
-          handler.getInstance().schema
-        );
+      const embedObj = resolveEmbededObj(typeHandler);
+      if (embedObj !== null) {
+        const embedInstance = embedObj.getObject();
+        const embedOptions = embedObj.getOptions();
+        const embedValue = objValue[key];
 
-        if (keys(childErrorResults).length > 0) {
-          errorResults[key] = childErrorResults;
+        // only process embed if parameter value not nil
+        if (embedValue) {
+          // calling normalize function on parent blueprint obj
+          const [fail, , normalizedValues] = embedInstance.normalize(embedValue);
+          // applying embed object options
+          if (!fail || (fail && !embedOptions.hideOnFail)) {
+            normalized[key] = normalizedValues;
+          }
+        } else {
+          if (!embedOptions.hideOnFail) normalized[key] = embedOptions.empty;
         }
-
-        normalized[key] = childNormalized;
       } else {
+        const handler = initiateTypeHandler(typeHandler);
+
         const [fail, normalizedValue] = handler.parse(key, objValue[key]);
         if (!fail || (fail && !handler.isHideOnFail())) {
           normalized[key] = normalizedValue;
@@ -154,5 +177,6 @@ const deserializeValue = function (valuesToDeserialize) {
 };
 
 module.exports = {
-  cls
+  cls,
+  embedCls
 };

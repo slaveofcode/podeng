@@ -1,7 +1,10 @@
 'use strict';
 
 const { includes, keys, forEach } = require('lodash');
-const { cls: BlueprintClass } = require('./instance');
+const {
+  cls: BlueprintClass,
+  embedCls: BlueprintEmbedClass
+} = require('./instance');
 const types = require('../types');
 const {
   combineObjDefaultOptions,
@@ -123,6 +126,9 @@ const componentCreator = isArrayComponent => {
         ? freezeObject(deserializedValues)
         : deserializedValues;
     };
+
+    component.embed = options =>
+      new BlueprintEmbedClass(handler.getInstance(), options);
 
     /**
      * Return handler from this component

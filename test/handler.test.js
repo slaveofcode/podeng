@@ -75,22 +75,33 @@ test('Frozen and Non frozen object', () => {
 });
 
 test('Multi level object', () => {
-  const value1 = blueprint.object({
+  const Value1 = blueprint.object({
     value: types.string
   });
-  const branch1 = blueprint.object({
-    value: value1
+  const Branch1 = blueprint.object({
+    value: Value1
   });
 
-  const branches = blueprint.object({
-    branch1: branch1
+  const BranchMaster1 = blueprint.object({
+    branch1: Branch1.embed()
+  });
+  const BranchMaster2 = blueprint.object({
+    branch1: Value1
   });
 
   expect(
-    branches({
+    BranchMaster1({
       branch1: {
         value: 'abc'
       }
     })
-  ).toEqual({ branch1: { value: 'abc' } });
+  ).toEqual({ branch1: { value: { value: null } } });
+
+  expect(
+    BranchMaster2({
+      branch1: { value: 'abc' }
+    })
+  ).toEqual({
+    branch1: { value: 'abc' }
+  });
 });

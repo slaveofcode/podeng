@@ -40,9 +40,7 @@ const parseValue = (value, stringify = true) => {
   let err = null;
   const parsedValue = isString(value)
     ? value
-    : stringify
-      ? JSON.stringify(value)
-      : undefined;
+    : stringify ? JSON.stringify(value) : undefined;
 
   if (!parsedValue) err = true;
   return [err, parsedValue];
@@ -137,18 +135,18 @@ const handler = (options = {}) => {
    * default is null
    */
   objHandler.getSerializeName = () =>
-    isString(options.serialize.to) || isNumber(options.serialize.to)
+    (isString(options.serialize.to) || isNumber(options.serialize.to)
       ? options.serialize.to
-      : null;
+      : null);
 
   /**
    * Returning deserialized name if set
    * default is null
    */
   objHandler.getDeserializeName = () =>
-    isString(options.deserialize.from) || isNumber(options.deserialize.from)
+    (isString(options.deserialize.from) || isNumber(options.deserialize.from)
       ? options.deserialize.from
-      : null;
+      : null);
 
   /**
    * Returning status of hide the value on serialization
