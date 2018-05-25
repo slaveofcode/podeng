@@ -4,7 +4,8 @@ const DEFAULT_OPTIONS = {
   frozen: true,
   giveWarning: false,
   onError: {},
-  throwOnError: false
+  throwOnError: false,
+  allowUnknownProperties: false
 };
 
 const EXTEND_OPTIONS = {

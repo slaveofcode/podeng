@@ -16,10 +16,11 @@ const { isFunction, isArray } = require('../types/detector');
 /**
  * Creating new instance and return as handler function
  * @param {Object} schema
+ * @param {Object} options
  * @param {boolean} isArrayType
  */
-const createHandler = (schema, isArrayType = false) => {
-  const inst = new BlueprintClass(schema, { isArray: isArrayType });
+const createHandler = (schema, options, isArrayType = false) => {
+  const inst = new BlueprintClass(schema, options, { isArray: isArrayType });
 
   const handlerFunc = () => {};
   handlerFunc.getInstance = () => inst;
@@ -43,19 +44,19 @@ const freezeObject = obj => {
 
 const componentCreator = isArrayComponent => {
   return (params, options = {}) => {
+    options = combineObjDefaultOptions(options);
+
     /**
      * Detect params passed as a component instead of a json
      */
     let handler;
     if (includes(keys(params), 'getHandler') && isFunction(params.getHandler)) {
       // Re-creating handler from existing components also copying the options
-      handler = createHandler(params.getParams(), isArrayComponent);
+      handler = createHandler(params.getParams(), options, isArrayComponent);
       options = params.getOptions();
     } else {
-      handler = createHandler(params, isArrayComponent);
+      handler = createHandler(params, options, isArrayComponent);
     }
-
-    options = combineObjDefaultOptions(options);
 
     const { onError, throwOnError, giveWarning } = options;
     const errorHandler = errorInitializer({

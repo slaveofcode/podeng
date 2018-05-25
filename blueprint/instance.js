@@ -1,11 +1,12 @@
 'use strict';
 
 const { isArray, isFunction, isUndefined } = require('../types/detector');
-const { includes, keys, forEach } = require('lodash');
+const { includes, keys, forEach, difference, pick } = require('lodash');
 
-const cls = function (schema, { isArray = false }) {
+const cls = function (schema, options = {}, { isArray = false }) {
   this.isArray = isArray;
   this.schema = schema;
+  this.options = options;
   this.normalize = normalizeValue;
   this.serialize = serializeValue;
   this.deserialize = deserializeValue;
@@ -124,11 +125,37 @@ const normalizeValue = function (valuesToNormalize) {
     return [errorResults, normalized];
   };
 
+  const handleUnknownProperties = (valuesToNormalize, schema) => {
+    const registeredKeys = keys(schema);
+    const givenKeys = keys(valuesToNormalize);
+    const unknownProperties = difference(givenKeys, registeredKeys);
+    return pick(valuesToNormalize, unknownProperties);
+  };
+
+  const isAllowUnknownProperties = this.options.allowUnknownProperties;
+
   if (!this.isArray) {
     const [errors, normalizedResult] = normalize(valuesToNormalize, this.schema);
+
+    if (isAllowUnknownProperties) {
+      Object.assign(
+        normalizedResult,
+        handleUnknownProperties(valuesToNormalize, this.schema)
+      );
+    }
+
     return [keys(errors).length > 0, errors, normalizedResult];
   } else {
-    const results = valuesToNormalize.map(v => normalize(v, this.schema));
+    const results = valuesToNormalize.map(v => {
+      const normalizedResult = normalize(v, this.schema);
+      if (isAllowUnknownProperties) {
+        Object.assign(
+          normalizedResult,
+          handleUnknownProperties(valuesToNormalize, this.schema)
+        );
+      }
+      return normalizedResult;
+    });
     const allErrors = [];
     const normalizedResults = [];
 

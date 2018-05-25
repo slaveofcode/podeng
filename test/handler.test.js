@@ -149,3 +149,19 @@ test('Multi level object', () => {
     values: 'empty value'
   });
 });
+
+test('Allow unknown properties given', () => {
+  const Object1 = blueprint.object(
+    {
+      name: types.string
+    },
+    {
+      allowUnknownProperties: true
+    }
+  );
+
+  expect(Object1({ name: 'Aditya', hobby: 'coding' })).toEqual({
+    name: 'Aditya',
+    hobby: 'coding'
+  });
+});
