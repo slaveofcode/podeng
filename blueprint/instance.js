@@ -1,7 +1,7 @@
 'use strict';
 
 const { isArray, isFunction, isUndefined } = require('../types/detector');
-const { includes, keys, forEach, difference, pick } = require('lodash');
+const { includes, keys, forEach, difference, pick, omit } = require('lodash');
 
 const cls = function (schema, options = {}, { isArray = false }) {
   this.isArray = isArray;
@@ -45,6 +45,13 @@ const resolveEmbededObj = obj =>
   (isFunction(obj.embed) && obj.embed() instanceof embedCls
     ? obj.embed()
     : obj instanceof embedCls ? obj : null);
+
+const handleUnknownProperties = (params, objToExclude) => {
+  const registeredKeys = keys(objToExclude);
+  const paramKeys = keys(params);
+  const unknownProperties = difference(paramKeys, registeredKeys);
+  return pick(params, unknownProperties);
+};
 
 /**
  * Normalizing embedded object
@@ -125,13 +132,6 @@ const normalizeValue = function (valuesToNormalize) {
     return [errorResults, normalized];
   };
 
-  const handleUnknownProperties = (valuesToNormalize, schema) => {
-    const registeredKeys = keys(schema);
-    const givenKeys = keys(valuesToNormalize);
-    const unknownProperties = difference(givenKeys, registeredKeys);
-    return pick(valuesToNormalize, unknownProperties);
-  };
-
   const isAllowUnknownProperties = this.options.allowUnknownProperties;
 
   if (!this.isArray) {
@@ -201,6 +201,18 @@ const deserializeValue = function (valuesToDeserialize) {
     throw new TypeError('Wrong value type, you must supply array values!');
   }
 
+  const getDeserializedKeys = (objValue, schema) => {
+    const deserializedNames = [];
+    forEach(schema, (typeHandler, key) => {
+      const handler = initiateTypeHandler(typeHandler);
+      const deserializeFrom = handler.getDeserializeName() === null
+        ? handler.getSerializeName() === null ? key : handler.getSerializeName()
+        : handler.getDeserializeName();
+      deserializedNames.push(deserializeFrom);
+    });
+    return deserializedNames;
+  };
+
   const deserialize = (objValue, schema) => {
     const deserialized = {};
     const errorResults = {};
@@ -229,14 +241,47 @@ const deserializeValue = function (valuesToDeserialize) {
     return [errorResults, deserialized];
   };
 
+  const isAllowUnknownProperties = this.options.allowUnknownProperties;
+
   if (!this.isArray) {
-    const [errors, normalizedResult] = deserialize(
+    const [errors, deserializedResult] = deserialize(
       valuesToDeserialize,
       this.schema
     );
-    return [keys(errors).length > 0, errors, normalizedResult];
+
+    if (isAllowUnknownProperties) {
+      const deserializedKeys = getDeserializedKeys(
+        valuesToDeserialize,
+        this.schema
+      );
+      Object.assign(
+        deserializedResult,
+        omit(
+          handleUnknownProperties(valuesToDeserialize, this.schema),
+          deserializedKeys
+        )
+      );
+    }
+
+    return [keys(errors).length > 0, errors, deserializedResult];
   } else {
-    const results = valuesToDeserialize.map(v => deserialize(v, this.schema));
+    const results = valuesToDeserialize.map(v => {
+      const deserializedResult = deserialize(v, this.schema);
+      if (isAllowUnknownProperties) {
+        const deserializedKeys = getDeserializedKeys(
+          valuesToDeserialize,
+          this.schema
+        );
+        Object.assign(
+          deserializedResult,
+          omit(
+            handleUnknownProperties(valuesToDeserialize, this.schema),
+            deserializedKeys
+          )
+        );
+      }
+      return deserializedResult;
+    });
     const allErrors = [];
     const normalizedResults = [];
 

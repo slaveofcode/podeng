@@ -160,6 +160,18 @@ test('Allow unknown properties given', () => {
     }
   );
 
+  const Object2 = blueprint.object(
+    {
+      name: types.string({
+        serialize: { to: 'full_name' },
+        deserialize: { from: 'username' }
+      })
+    },
+    {
+      allowUnknownProperties: true
+    }
+  );
+
   const ObjectEmbed = blueprint.object({
     value: types.string,
     embed: Object1
@@ -198,6 +210,21 @@ test('Allow unknown properties given', () => {
   });
 
   expect(Object1.serialize({ name: 'Aditya', hobby: 'coding' })).toEqual({
+    name: 'Aditya',
+    hobby: 'coding'
+  });
+
+  expect(Object1.deserialize({ name: 'Aditya', hobby: 'coding' })).toEqual({
+    name: 'Aditya',
+    hobby: 'coding'
+  });
+
+  expect(Object2.serialize({ name: 'Aditya', hobby: 'coding' })).toEqual({
+    full_name: 'Aditya',
+    hobby: 'coding'
+  });
+
+  expect(Object2.deserialize({ username: 'Aditya', hobby: 'coding' })).toEqual({
     name: 'Aditya',
     hobby: 'coding'
   });
