@@ -186,6 +186,13 @@ const serializeValue = function (valuesToSerialize) {
       }
     }
   });
+
+  const diffsSchema = difference(keys(valuesToSerialize), keys(this.schema));
+  const diffsSerialize = difference(diffsSchema, keys(serialized));
+  if (this.options.allowUnknownProperties) {
+    Object.assign(serialized, pick(valuesToSerialize, diffsSerialize));
+  }
+
   return [isError, errorDetails, serialized];
 };
 

@@ -196,4 +196,9 @@ test('Allow unknown properties given', () => {
       hobby: 'coding'
     }
   });
+
+  expect(Object1.serialize({ name: 'Aditya', hobby: 'coding' })).toEqual({
+    name: 'Aditya',
+    hobby: 'coding'
+  });
 });
