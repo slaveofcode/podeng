@@ -148,6 +148,7 @@ const normalizeValue = function (valuesToNormalize) {
   } else {
     const results = valuesToNormalize.map(v => {
       const normalizedResult = normalize(v, this.schema);
+      console.log('allowed:', isAllowUnknownProperties);
       if (isAllowUnknownProperties) {
         Object.assign(
           normalizedResult,
