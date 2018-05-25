@@ -1,6 +1,6 @@
 'use strict';
 
-const { isArray, isFunction } = require('../types/detector');
+const { isArray, isFunction, isUndefined } = require('../types/detector');
 const { includes, keys, forEach } = require('lodash');
 
 const cls = function (schema, { isArray = false }) {
@@ -36,10 +36,59 @@ const initiateTypeHandler = typehandler => {
   }
 };
 
+/**
+ * Detect & returning embedded object
+ * @param {embedCls} embeddedObject
+ */
 const resolveEmbededObj = obj =>
   (isFunction(obj.embed) && obj.embed() instanceof embedCls
     ? obj.embed()
     : obj instanceof embedCls ? obj : null);
+
+/**
+ * Normalizing embedded object
+ * @param {*} embedObj
+ * @param {*} valueToNormalize
+ */
+const normalizeEmbedValue = (embedObj, valueToNormalize) => {
+  const embedInstance = embedObj.getObject();
+  const embedOptions = embedObj.getOptions();
+  let result = null;
+
+  // resolving empty value based on embed options
+  const resolveEmptyValue = () => {
+    const defaultValue = embedOptions.default;
+    if (isUndefined(defaultValue)) {
+      return embedInstance.isArray ? [] : null;
+    } else {
+      return defaultValue;
+    }
+  };
+
+  if (valueToNormalize) {
+    // treat different action if value is not valid for array blueprint
+    // because executing wrong value type (not array) on array object will cause exception
+    if (embedInstance.isArray && !isArray(valueToNormalize)) {
+      result = resolveEmptyValue();
+    } else {
+      // calling normalize function on parent blueprint obj
+      const [fail, , normalizedValues] = embedInstance.normalize(
+        valueToNormalize
+      );
+
+      // applying embed object options
+      if (!fail || (fail && !embedOptions.hideOnFail)) {
+        result = normalizedValues;
+      }
+    }
+  } else {
+    if (!embedOptions.hideOnFail) {
+      result = resolveEmptyValue();
+    }
+  }
+
+  return result;
+};
 
 const normalizeValue = function (valuesToNormalize) {
   if (this.isArray && !isArray(valuesToNormalize)) {
@@ -55,21 +104,11 @@ const normalizeValue = function (valuesToNormalize) {
       // so we do recursive operation
       const embedObj = resolveEmbededObj(typeHandler);
       if (embedObj !== null) {
-        const embedInstance = embedObj.getObject();
-        const embedOptions = embedObj.getOptions();
         const embedValue = objValue[key];
 
-        // only process embed if parameter value not nil
-        if (embedValue) {
-          // calling normalize function on parent blueprint obj
-          const [fail, , normalizedValues] = embedInstance.normalize(embedValue);
-          // applying embed object options
-          if (!fail || (fail && !embedOptions.hideOnFail)) {
-            normalized[key] = normalizedValues;
-          }
-        } else {
-          if (!embedOptions.hideOnFail) normalized[key] = embedOptions.empty;
-        }
+        const result = normalizeEmbedValue(embedObj, embedValue);
+
+        if (result !== null) normalized[key] = result;
       } else {
         const handler = initiateTypeHandler(typeHandler);
 

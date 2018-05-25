@@ -12,7 +12,7 @@ const EXTEND_OPTIONS = {
 };
 
 const EMBED_OPTIONS = {
-  empty: null,
+  default: undefined,
   hideOnFail: false
 };
 

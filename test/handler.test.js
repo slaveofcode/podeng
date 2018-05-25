@@ -78,6 +78,10 @@ test('Multi level object', () => {
   const Value1 = blueprint.object({
     value: types.string
   });
+  const Value2 = blueprint.array({
+    value: types.string
+  });
+
   const Branch1 = blueprint.object({
     value: Value1
   });
@@ -87,6 +91,12 @@ test('Multi level object', () => {
   });
   const BranchMaster2 = blueprint.object({
     branch1: Value1
+  });
+  const BranchMaster3 = blueprint.object({
+    values: Value2
+  });
+  const BranchMaster4 = blueprint.object({
+    values: Value2.embed({ default: 'empty value' })
   });
 
   expect(
@@ -103,5 +113,39 @@ test('Multi level object', () => {
     })
   ).toEqual({
     branch1: { value: 'abc' }
+  });
+
+  expect(
+    BranchMaster2({
+      branch1: 'invalid value'
+    })
+  ).toEqual({
+    branch1: {
+      value: null
+    }
+  });
+
+  expect(
+    BranchMaster3({
+      values: [{ value: 'abc' }, { value: 'cde' }]
+    })
+  ).toEqual({
+    values: [{ value: 'abc' }, { value: 'cde' }]
+  });
+
+  expect(
+    BranchMaster3({
+      values: 'invalid value'
+    })
+  ).toEqual({
+    values: []
+  });
+
+  expect(
+    BranchMaster4({
+      values: 'invalid value'
+    })
+  ).toEqual({
+    values: 'empty value'
   });
 });
