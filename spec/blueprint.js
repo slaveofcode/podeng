@@ -85,7 +85,7 @@ const Person = blueprint.object(
     frozen: true, // Freeze the returned object
     giveWarning: true, // warning on wrong value given
     throwOnError: true, // throw error on wrong value given
-    allowUnknownProperties: false, // throw error on unknow properties given
+    allowUnknownProperties: false, // no unknow properties given will exist if false
   }
 )
 
