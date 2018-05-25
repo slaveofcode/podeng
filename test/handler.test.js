@@ -160,8 +160,40 @@ test('Allow unknown properties given', () => {
     }
   );
 
+  const ObjectEmbed = blueprint.object({
+    value: types.string,
+    embed: Object1
+  });
+
   expect(Object1({ name: 'Aditya', hobby: 'coding' })).toEqual({
     name: 'Aditya',
     hobby: 'coding'
+  });
+
+  expect(
+    ObjectEmbed({
+      value: 'some value',
+      embed: { name: 'Aditya', hobby: 'coding' }
+    })
+  ).toEqual({
+    value: 'some value',
+    embed: {
+      name: 'Aditya',
+      hobby: 'coding'
+    }
+  });
+
+  expect(
+    ObjectEmbed({
+      value: 'some value',
+      extraValue: 'extra value',
+      embed: { name: 'Aditya', hobby: 'coding' }
+    })
+  ).toEqual({
+    value: 'some value',
+    embed: {
+      name: 'Aditya',
+      hobby: 'coding'
+    }
   });
 });
