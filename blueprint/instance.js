@@ -220,12 +220,6 @@ const serializeValue = function (valuesToSerialize) {
     }
   }
 
-  // const diffsSchema = difference(keys(valuesToSerialize), keys(this.schema));
-  // const diffsSerialize = difference(diffsSchema, keys(serialized));
-  // if (this.options.allowUnknownProperties) {
-  //   Object.assign(serialized, pick(valuesToSerialize, diffsSerialize));
-  // }
-
   return [isError, errorDetails, serialized];
 };
 
@@ -305,21 +299,15 @@ const deserializeValue = function (valuesToDeserialize) {
     return [keys(errors).length > 0, errors, deserializedResult];
   } else {
     const results = valuesToDeserialize.map(v => {
-      const deserializedResult = deserialize(v, this.schema);
+      const [errorDetails, deserializedResult] = deserialize(v, this.schema);
       if (isAllowUnknownProperties) {
-        const deserializedKeys = getDeserializedKeys(
-          valuesToDeserialize,
-          this.schema
-        );
+        const deserializedKeys = getDeserializedKeys(v, this.schema);
         Object.assign(
           deserializedResult,
-          omit(
-            handleUnknownProperties(valuesToDeserialize, this.schema),
-            deserializedKeys
-          )
+          omit(handleUnknownProperties(v, this.schema), deserializedKeys)
         );
       }
-      return deserializedResult;
+      return [errorDetails, deserializedResult];
     });
     const allErrors = [];
     const normalizedResults = [];

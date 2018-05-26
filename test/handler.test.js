@@ -262,4 +262,14 @@ test('Allow unknown properties given', () => {
     { full_name: 'Aditya', hobby: 'coding' },
     { full_name: 'Amelia', hobby: 'shopping' }
   ]);
+
+  expect(
+    Object3Collection.deserialize([
+      { username: 'Aditya', hobby: 'coding' },
+      { username: 'Amelia', hobby: 'shopping' }
+    ])
+  ).toEqual([
+    { name: 'Aditya', hobby: 'coding' },
+    { name: 'Amelia', hobby: 'shopping' }
+  ]);
 });
