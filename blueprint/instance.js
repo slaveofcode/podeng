@@ -42,9 +42,11 @@ const initiateTypeHandler = typehandler => {
  * @param {embedCls} embeddedObject
  */
 const resolveEmbededObj = obj =>
-  (isFunction(obj.embed) && obj.embed() instanceof embedCls
+  isFunction(obj.embed) && obj.embed() instanceof embedCls
     ? obj.embed()
-    : obj instanceof embedCls ? obj : null);
+    : obj instanceof embedCls
+      ? obj
+      : null;
 
 const handleUnknownProperties = (params, objToExclude) => {
   const registeredKeys = keys(objToExclude);
@@ -135,7 +137,10 @@ const normalizeValue = function (valuesToNormalize) {
   const isAllowUnknownProperties = this.options.allowUnknownProperties;
 
   if (!this.isArray) {
-    const [errors, normalizedResult] = normalize(valuesToNormalize, this.schema);
+    const [errors, normalizedResult] = normalize(
+      valuesToNormalize,
+      this.schema
+    );
 
     if (isAllowUnknownProperties) {
       Object.assign(
@@ -147,14 +152,14 @@ const normalizeValue = function (valuesToNormalize) {
     return [keys(errors).length > 0, errors, normalizedResult];
   } else {
     const results = valuesToNormalize.map(v => {
-      const normalizedResult = normalize(v, this.schema);
+      const [errorDetails, normalizedResult] = normalize(v, this.schema);
       if (isAllowUnknownProperties) {
         Object.assign(
           normalizedResult,
-          handleUnknownProperties(valuesToNormalize, this.schema)
+          handleUnknownProperties(v, this.schema)
         );
       }
-      return normalizedResult;
+      return [errorDetails, normalizedResult];
     });
     const allErrors = [];
     const normalizedResults = [];
@@ -169,28 +174,50 @@ const normalizeValue = function (valuesToNormalize) {
 };
 
 const serializeValue = function (valuesToSerialize) {
-  const serialized = {};
+  let serialized = this.isArray ? [] : {};
   const [isError, errorDetails, normalizedValues] = this.normalize(
     valuesToSerialize
   );
 
-  const normalizedKeys = Object.keys(normalizedValues);
-  forEach(this.schema, (typeHandler, key) => {
-    const handler = initiateTypeHandler(typeHandler);
-    if (includes(normalizedKeys, key) && !handler.isHideOnSerialization()) {
-      const serializeTo = handler.getSerializeName();
-      if (serializeTo !== null) {
-        serialized[serializeTo] = normalizedValues[key];
-      } else {
-        serialized[key] = normalizedValues[key];
-      }
-    }
-  });
+  const isAllowUnknownProperties = this.options.allowUnknownProperties;
 
-  const diffsSchema = difference(keys(valuesToSerialize), keys(this.schema));
-  const diffsSerialize = difference(diffsSchema, keys(serialized));
-  if (this.options.allowUnknownProperties) {
-    Object.assign(serialized, pick(valuesToSerialize, diffsSerialize));
+  const serialize = (normalizedValues, schema) => {
+    const serialized = {};
+    const normalizedKeys = Object.keys(normalizedValues);
+
+    forEach(schema, (typeHandler, key) => {
+      const handler = initiateTypeHandler(typeHandler);
+      if (includes(normalizedKeys, key) && !handler.isHideOnSerialization()) {
+        const serializeTo = handler.getSerializeName();
+        if (serializeTo !== null) {
+          serialized[serializeTo] = normalizedValues[key];
+        } else {
+          serialized[key] = normalizedValues[key];
+        }
+      }
+    });
+
+    return serialized;
+  };
+
+  if (this.isArray) {
+    forEach(normalizedValues, v => {
+      const serializeResult = serialize(v, this.schema);
+
+      if (isAllowUnknownProperties) {
+        Object.assign(serializeResult, handleUnknownProperties(v, this.schema));
+      }
+
+      serialized.push(serializeResult);
+    });
+  } else {
+    serialized = serialize(normalizedValues, this.schema);
+    if (isAllowUnknownProperties) {
+      Object.assign(
+        serialized,
+        handleUnknownProperties(normalizedValues, this.schema)
+      );
+    }
   }
 
   return [isError, errorDetails, serialized];
@@ -205,9 +232,12 @@ const deserializeValue = function (valuesToDeserialize) {
     const deserializedNames = [];
     forEach(schema, (typeHandler, key) => {
       const handler = initiateTypeHandler(typeHandler);
-      const deserializeFrom = handler.getDeserializeName() === null
-        ? handler.getSerializeName() === null ? key : handler.getSerializeName()
-        : handler.getDeserializeName();
+      const deserializeFrom =
+        handler.getDeserializeName() === null
+          ? handler.getSerializeName() === null
+            ? key
+            : handler.getSerializeName()
+          : handler.getDeserializeName();
       deserializedNames.push(deserializeFrom);
     });
     return deserializedNames;
@@ -220,9 +250,12 @@ const deserializeValue = function (valuesToDeserialize) {
     forEach(schema, (typeHandler, key) => {
       const handler = initiateTypeHandler(typeHandler);
 
-      const deserializeFrom = handler.getDeserializeName() === null
-        ? handler.getSerializeName() === null ? key : handler.getSerializeName()
-        : handler.getDeserializeName();
+      const deserializeFrom =
+        handler.getDeserializeName() === null
+          ? handler.getSerializeName() === null
+            ? key
+            : handler.getSerializeName()
+          : handler.getDeserializeName();
 
       const [fail, normalizedValue] = handler.parse(
         deserializeFrom,
@@ -266,21 +299,15 @@ const deserializeValue = function (valuesToDeserialize) {
     return [keys(errors).length > 0, errors, deserializedResult];
   } else {
     const results = valuesToDeserialize.map(v => {
-      const deserializedResult = deserialize(v, this.schema);
+      const [errorDetails, deserializedResult] = deserialize(v, this.schema);
       if (isAllowUnknownProperties) {
-        const deserializedKeys = getDeserializedKeys(
-          valuesToDeserialize,
-          this.schema
-        );
+        const deserializedKeys = getDeserializedKeys(v, this.schema);
         Object.assign(
           deserializedResult,
-          omit(
-            handleUnknownProperties(valuesToDeserialize, this.schema),
-            deserializedKeys
-          )
+          omit(handleUnknownProperties(v, this.schema), deserializedKeys)
         );
       }
-      return deserializedResult;
+      return [errorDetails, deserializedResult];
     });
     const allErrors = [];
     const normalizedResults = [];

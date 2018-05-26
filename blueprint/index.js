@@ -44,21 +44,30 @@ const freezeObject = obj => {
 
 const componentCreator = isArrayComponent => {
   return (params, options = {}) => {
-    options = combineObjDefaultOptions(options);
+    let combinedDefaultOptions = combineObjDefaultOptions(options);
 
     /**
      * Detect params passed as a component instead of a json
      */
     let handler;
     if (includes(keys(params), 'getHandler') && isFunction(params.getHandler)) {
-      // Re-creating handler from existing components also copying the options
-      handler = createHandler(params.getParams(), options, isArrayComponent);
-      options = params.getOptions();
+      // Re-creating handler from existing components
+      // overriding the default options
+
+      combinedDefaultOptions = isArrayComponent
+        ? Object.assign(combinedDefaultOptions, params.getOptions(), options)
+        : combinedDefaultOptions;
+
+      handler = createHandler(
+        params.getParams(),
+        combinedDefaultOptions,
+        isArrayComponent
+      );
     } else {
-      handler = createHandler(params, options, isArrayComponent);
+      handler = createHandler(params, combinedDefaultOptions, isArrayComponent);
     }
 
-    const { onError, throwOnError, giveWarning } = options;
+    const { onError, throwOnError, giveWarning } = combinedDefaultOptions;
     const errorHandler = errorInitializer({
       onError,
       throwOnError
@@ -84,7 +93,9 @@ const componentCreator = isArrayComponent => {
         errorHandler(errorDetails);
       }
 
-      return options.frozen ? freezeObject(normalizedValues) : normalizedValues;
+      return combinedDefaultOptions.frozen
+        ? freezeObject(normalizedValues)
+        : normalizedValues;
     };
 
     /**
@@ -103,7 +114,9 @@ const componentCreator = isArrayComponent => {
         errorHandler(errorDetails);
       }
 
-      return options.frozen ? freezeObject(serializedValues) : serializedValues;
+      return combinedDefaultOptions.frozen
+        ? freezeObject(serializedValues)
+        : serializedValues;
     };
 
     /**
@@ -123,7 +136,7 @@ const componentCreator = isArrayComponent => {
         errorHandler(errorDetails);
       }
 
-      return options.frozen
+      return combinedDefaultOptions.frozen
         ? freezeObject(deserializedValues)
         : deserializedValues;
     };
@@ -150,7 +163,7 @@ const componentCreator = isArrayComponent => {
     component.getSchema = () => handler.getInstance().schema;
 
     component.getParams = () => Object.assign({}, params);
-    component.getOptions = () => Object.assign({}, options);
+    component.getOptions = () => Object.assign({}, combinedDefaultOptions);
 
     return component;
   };
@@ -164,7 +177,7 @@ const extensibleComponent = (
 ) => {
   if (isArray(component)) {
     throw new TypeError(
-      'To extend you need to pass blueprint object not array!'
+      'To extend you need to pass blueprint object not an array!'
     );
   }
 
@@ -173,8 +186,15 @@ const extensibleComponent = (
   if (!hasInstanceFunc) {
     throw new TypeError('To extend you must pass blueprint object!');
   }
+
   if (!(component.getInstance() instanceof BlueprintClass)) {
     throw new TypeError('To extend you must pass blueprint object!');
+  }
+
+  if (component.getInstance().isArray) {
+    throw new TypeError(
+      'To extend you must pass blueprint object, not blueprint array!'
+    );
   }
 
   options = combineObjDefaultOptions(options);

@@ -160,6 +160,11 @@ test('Allow unknown properties given', () => {
     }
   );
 
+  const Object1Collection = blueprint.array(Object1);
+  const Object2Collection = blueprint.array(Object1, {
+    allowUnknownProperties: false
+  });
+
   const Object2 = blueprint.object(
     {
       name: types.string({
@@ -171,6 +176,11 @@ test('Allow unknown properties given', () => {
       allowUnknownProperties: true
     }
   );
+
+  const Object3Collection = blueprint.array(Object2);
+  const Object4Collection = blueprint.array(Object2, {
+    allowUnknownProperties: false
+  });
 
   const ObjectEmbed = blueprint.object({
     value: types.string,
@@ -228,4 +238,48 @@ test('Allow unknown properties given', () => {
     name: 'Aditya',
     hobby: 'coding'
   });
+
+  expect(
+    Object1Collection([
+      { name: 'Aditya', hobby: 'coding' },
+      { name: 'Amelia', hobby: 'shopping' }
+    ])
+  ).toEqual([
+    { name: 'Aditya', hobby: 'coding' },
+    { name: 'Amelia', hobby: 'shopping' }
+  ]);
+
+  expect(
+    Object2Collection([
+      { name: 'Aditya', hobby: 'coding' },
+      { name: 'Amelia', hobby: 'shopping' }
+    ])
+  ).toEqual([{ name: 'Aditya' }, { name: 'Amelia' }]);
+
+  expect(
+    Object3Collection.serialize([
+      { name: 'Aditya', hobby: 'coding' },
+      { name: 'Amelia', hobby: 'shopping' }
+    ])
+  ).toEqual([
+    { full_name: 'Aditya', hobby: 'coding' },
+    { full_name: 'Amelia', hobby: 'shopping' }
+  ]);
+
+  expect(
+    Object3Collection.deserialize([
+      { username: 'Aditya', hobby: 'coding' },
+      { username: 'Amelia', hobby: 'shopping' }
+    ])
+  ).toEqual([
+    { name: 'Aditya', hobby: 'coding' },
+    { name: 'Amelia', hobby: 'shopping' }
+  ]);
+
+  expect(
+    Object4Collection.deserialize([
+      { username: 'Aditya', hobby: 'coding' },
+      { username: 'Amelia', hobby: 'shopping' }
+    ])
+  ).toEqual([{ name: 'Aditya' }, { name: 'Amelia' }]);
 });
