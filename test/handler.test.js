@@ -177,6 +177,8 @@ test('Allow unknown properties given', () => {
     }
   );
 
+  const Object3Collection = blueprint.array(Object2);
+
   const ObjectEmbed = blueprint.object({
     value: types.string,
     embed: Object1
@@ -250,4 +252,14 @@ test('Allow unknown properties given', () => {
       { name: 'Amelia', hobby: 'shopping' }
     ])
   ).toEqual([{ name: 'Aditya' }, { name: 'Amelia' }]);
+
+  expect(
+    Object3Collection.serialize([
+      { name: 'Aditya', hobby: 'coding' },
+      { name: 'Amelia', hobby: 'shopping' }
+    ])
+  ).toEqual([
+    { full_name: 'Aditya', hobby: 'coding' },
+    { full_name: 'Amelia', hobby: 'shopping' }
+  ]);
 });

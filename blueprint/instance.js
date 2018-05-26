@@ -174,29 +174,57 @@ const normalizeValue = function (valuesToNormalize) {
 };
 
 const serializeValue = function (valuesToSerialize) {
-  const serialized = {};
+  let serialized = this.isArray ? [] : {};
   const [isError, errorDetails, normalizedValues] = this.normalize(
     valuesToSerialize
   );
 
-  const normalizedKeys = Object.keys(normalizedValues);
-  forEach(this.schema, (typeHandler, key) => {
-    const handler = initiateTypeHandler(typeHandler);
-    if (includes(normalizedKeys, key) && !handler.isHideOnSerialization()) {
-      const serializeTo = handler.getSerializeName();
-      if (serializeTo !== null) {
-        serialized[serializeTo] = normalizedValues[key];
-      } else {
-        serialized[key] = normalizedValues[key];
-      }
-    }
-  });
+  const isAllowUnknownProperties = this.options.allowUnknownProperties;
 
-  const diffsSchema = difference(keys(valuesToSerialize), keys(this.schema));
-  const diffsSerialize = difference(diffsSchema, keys(serialized));
-  if (this.options.allowUnknownProperties) {
-    Object.assign(serialized, pick(valuesToSerialize, diffsSerialize));
+  const serialize = (normalizedValues, schema) => {
+    const serialized = {};
+    const normalizedKeys = Object.keys(normalizedValues);
+
+    forEach(schema, (typeHandler, key) => {
+      const handler = initiateTypeHandler(typeHandler);
+      if (includes(normalizedKeys, key) && !handler.isHideOnSerialization()) {
+        const serializeTo = handler.getSerializeName();
+        if (serializeTo !== null) {
+          serialized[serializeTo] = normalizedValues[key];
+        } else {
+          serialized[key] = normalizedValues[key];
+        }
+      }
+    });
+
+    return serialized;
+  };
+
+  if (this.isArray) {
+    forEach(normalizedValues, v => {
+      const serializeResult = serialize(v, this.schema);
+
+      if (isAllowUnknownProperties) {
+        Object.assign(serializeResult, handleUnknownProperties(v, this.schema));
+      }
+
+      serialized.push(serializeResult);
+    });
+  } else {
+    serialized = serialize(normalizedValues, this.schema);
+    if (isAllowUnknownProperties) {
+      Object.assign(
+        serialized,
+        handleUnknownProperties(normalizedValues, this.schema)
+      );
+    }
   }
+
+  // const diffsSchema = difference(keys(valuesToSerialize), keys(this.schema));
+  // const diffsSerialize = difference(diffsSchema, keys(serialized));
+  // if (this.options.allowUnknownProperties) {
+  //   Object.assign(serialized, pick(valuesToSerialize, diffsSerialize));
+  // }
 
   return [isError, errorDetails, serialized];
 };
