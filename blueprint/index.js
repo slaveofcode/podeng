@@ -177,7 +177,7 @@ const extensibleComponent = (
 ) => {
   if (isArray(component)) {
     throw new TypeError(
-      'To extend you need to pass blueprint object not array!'
+      'To extend you need to pass blueprint object not an array!'
     );
   }
 
@@ -186,8 +186,15 @@ const extensibleComponent = (
   if (!hasInstanceFunc) {
     throw new TypeError('To extend you must pass blueprint object!');
   }
+
   if (!(component.getInstance() instanceof BlueprintClass)) {
     throw new TypeError('To extend you must pass blueprint object!');
+  }
+
+  if (component.getInstance().isArray) {
+    throw new TypeError(
+      'To extend you must pass blueprint object, not blueprint array!'
+    );
   }
 
   options = combineObjDefaultOptions(options);
