@@ -161,6 +161,9 @@ test('Allow unknown properties given', () => {
   );
 
   const Object1Collection = blueprint.array(Object1);
+  const Object2Collection = blueprint.array(Object1, {
+    allowUnknownProperties: false
+  });
 
   const Object2 = blueprint.object(
     {
@@ -240,4 +243,11 @@ test('Allow unknown properties given', () => {
     { name: 'Aditya', hobby: 'coding' },
     { name: 'Amelia', hobby: 'shopping' }
   ]);
+
+  expect(
+    Object2Collection([
+      { name: 'Aditya', hobby: 'coding' },
+      { name: 'Amelia', hobby: 'shopping' }
+    ])
+  ).toEqual([{ name: 'Aditya' }, { name: 'Amelia' }]);
 });
