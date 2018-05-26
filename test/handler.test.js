@@ -178,6 +178,9 @@ test('Allow unknown properties given', () => {
   );
 
   const Object3Collection = blueprint.array(Object2);
+  const Object4Collection = blueprint.array(Object2, {
+    allowUnknownProperties: false
+  });
 
   const ObjectEmbed = blueprint.object({
     value: types.string,
@@ -272,4 +275,11 @@ test('Allow unknown properties given', () => {
     { name: 'Aditya', hobby: 'coding' },
     { name: 'Amelia', hobby: 'shopping' }
   ]);
+
+  expect(
+    Object4Collection.deserialize([
+      { username: 'Aditya', hobby: 'coding' },
+      { username: 'Amelia', hobby: 'shopping' }
+    ])
+  ).toEqual([{ name: 'Aditya' }, { name: 'Amelia' }]);
 });
