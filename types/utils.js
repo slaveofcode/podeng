@@ -1,5 +1,9 @@
 'use strict';
 
+const { includes, keys } = require('lodash');
+const { cls: BlueprintClass } = require('../blueprint/instance');
+const { isFunction } = require('../types/detector');
+
 const DEFAULT_OPTIONS = {
   hideOnFail: false,
   default: null,
@@ -17,6 +21,16 @@ const DEFAULT_OPTIONS = {
 const combineDefaultOptions = options =>
   Object.assign({}, DEFAULT_OPTIONS, options);
 
+const isBlueprintObject = obj => {
+  const isValidFunction =
+    includes(keys(obj), 'getHandler') &&
+    isFunction(obj.getHandler) &&
+    includes(keys(obj), 'getInstance') &&
+    isFunction(obj.getInstance);
+  return isValidFunction ? obj instanceof BlueprintClass : false;
+};
+
 module.exports = {
-  combineDefaultOptions
+  combineDefaultOptions,
+  isBlueprintObject
 };
