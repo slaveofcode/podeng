@@ -4,7 +4,7 @@ const { combineDefaultOptions } = require('./utils');
 const { isInt, isFunction, isNil, isNumber } = require('../types/detector');
 
 const parseValue = value => {
-  if (isInt(value)) return value;
+  if (isInt(value)) return [false, value];
   const parsedValue = parseInt(value);
   const invalid = isNaN(parsedValue) && !isInt(parsedValue);
   return [invalid, parsedValue];
@@ -76,16 +76,17 @@ const validate = (
   if (!validMax) errorDetails.push(`Maximum value of ${key} is ${max}`);
 
   const validMinDigits = minDigits ? value.toString().length >= minDigits : true;
+  if (minDigits) console.log(validMinDigits);
   if (!validMinDigits) {
     errorDetails.push(`Minimum value of ${key} is ${minDigits} digits`);
   }
 
-  const validMaxDigits = maxDigits ? value.toString().length >= maxDigits : true;
+  const validMaxDigits = maxDigits ? value.toString().length <= maxDigits : true;
   if (!validMaxDigits) {
     errorDetails.push(`Maximum value of ${key} is ${maxDigits} digits`);
   }
 
-  const valid = validMin && validMax;
+  const valid = validMin && validMax && validMinDigits && validMaxDigits;
 
   return [errorDetails, valid];
 };
