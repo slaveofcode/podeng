@@ -57,6 +57,7 @@ const validate = (key, value, options = { min: null, max: null }) => {
 
 const getOptions = () =>
   combineDefaultOptions({
+    stringify: true,
     min: null,
     max: null,
     normalize: null
@@ -115,7 +116,10 @@ const parserMaker = options => {
   };
 };
 
+const getTypeOptions = () => ({ isDirectValueSet: false });
+
 module.exports = {
+  getTypeOptions,
   parserMaker,
   validate,
   getOptions

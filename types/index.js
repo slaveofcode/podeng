@@ -2,10 +2,16 @@
 const { isString, isNumber, isBoolean } = require('./detector');
 const stringType = require('./string');
 const integerType = require('./integer');
+const constantType = require('./constant');
 
-const makeHandler = (parserMaker, validate, getOptions) => {
-  const handler = (options = {}) => {
-    options = Object.assign(getOptions(), options);
+const makeHandler = (parserMaker, validate, getOptions, getTypeOptions) => {
+  const handler = (paramsOrOptions = {}) => {
+    const typeOptions = getTypeOptions();
+
+    const options = Object.assign(
+      getOptions(),
+      !typeOptions.isDirectValueSet ? paramsOrOptions : {}
+    );
 
     const objHandler = () => {};
 
@@ -54,11 +60,19 @@ module.exports = {
   string: makeHandler(
     stringType.parserMaker,
     stringType.validate,
-    stringType.getOptions
+    stringType.getOptions,
+    stringType.getTypeOptions
   ),
   integer: makeHandler(
     integerType.parserMaker,
     integerType.validate,
-    integerType.getOptions
+    integerType.getOptions,
+    integerType.getTypeOptions
+  ),
+  constant: makeHandler(
+    constantType.parserMaker,
+    constantType.validate,
+    constantType.getOptions,
+    constantType.getTypeOptions
   )
 };
