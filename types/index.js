@@ -1,6 +1,7 @@
 'use strict';
 const { isString, isNumber, isBoolean } = require('./detector');
 const stringType = require('./string');
+const integerType = require('./integer');
 
 const makeHandler = (parserMaker, validate, getOptions) => {
   const handler = (options = {}) => {
@@ -54,5 +55,10 @@ module.exports = {
     stringType.parserMaker,
     stringType.validate,
     stringType.getOptions
+  ),
+  integer: makeHandler(
+    integerType.parserMaker,
+    integerType.validate,
+    integerType.getOptions
   )
 };
