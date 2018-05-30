@@ -1,7 +1,8 @@
 'use strict';
 
+const { isNil } = require('lodash');
 const { combineDefaultOptions } = require('./utils');
-const { isInt, isFunction, isNil, isNumber } = require('../types/detector');
+const { isInt, isFunction, isNumber } = require('../types/detector');
 
 const parseValue = value => {
   if (isInt(value)) return [false, value];
