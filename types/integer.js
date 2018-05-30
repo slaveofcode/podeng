@@ -50,22 +50,22 @@ const validate = (
 
   if (min && !isNumber(min)) {
     throw new TypeError(
-      `Invalid "min" option value for ${key}, it should be in numeric type!`
+      `Integer: Invalid "min" option value for ${key}, it should be in numeric type!`
     );
   }
   if (max && !isNumber(max)) {
     throw new TypeError(
-      `Invalid "max" option value for ${key}, it should be in numeric type!`
+      `Integer: Invalid "max" option value for ${key}, it should be in numeric type!`
     );
   }
   if (minDigits && !isNumber(minDigits)) {
     throw new TypeError(
-      `Invalid "minDigits" option value for ${key}, it should be in numeric type!`
+      `Integer: Invalid "minDigits" option value for ${key}, it should be in numeric type!`
     );
   }
   if (maxDigits && !isNumber(maxDigits)) {
     throw new TypeError(
-      `Invalid "maxDigits" option value for ${key}, it should be in numeric type!`
+      `Integer: Invalid "maxDigits" option value for ${key}, it should be in numeric type!`
     );
   }
 
@@ -76,7 +76,6 @@ const validate = (
   if (!validMax) errorDetails.push(`Maximum value of ${key} is ${max}`);
 
   const validMinDigits = minDigits ? value.toString().length >= minDigits : true;
-  if (minDigits) console.log(validMinDigits);
   if (!validMinDigits) {
     errorDetails.push(`Minimum value of ${key} is ${minDigits} digits`);
   }
