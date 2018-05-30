@@ -50,7 +50,17 @@ const componentCreator = isArrayComponent => {
      * Detect params passed as a component instead of a json
      */
     let handler;
-    if (includes(keys(params), 'getHandler') && isFunction(params.getHandler)) {
+    if (
+      includes(keys(params), 'getHandler') &&
+      isFunction(params.getHandler) &&
+      includes(keys(params), 'getInstance') &&
+      isFunction(params.getInstance)
+    ) {
+      if (!(params.getInstance() instanceof BlueprintClass)) {
+        throw new TypeError(
+          'Invalid parameter, not an instance of blueprint object'
+        );
+      }
       // Re-creating handler from existing components
       // overriding the default options
 
