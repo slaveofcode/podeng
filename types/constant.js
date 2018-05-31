@@ -35,7 +35,7 @@ const parseValue = (paramsOrOptions, value) => {
     }
   });
 
-  return [valid, paramsOrOptions];
+  return [valid, value];
 };
 
 const parserMaker = paramsOrOptions => {
@@ -62,7 +62,9 @@ const validate = (key, value, paramsOrOptions) => {
     throw new TypeError(`List constant of ${key} is undefined!`);
   }
 
-  if (!valid) { errorDetails.push(`Value ${value} is not listed on constants of ${key}`); }
+  if (!valid) {
+    errorDetails.push(`Value ${value} is not listed on constants of ${key}`);
+  }
 
   return [errorDetails, valid];
 };
