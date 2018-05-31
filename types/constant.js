@@ -8,45 +8,61 @@ const {
   isNumber,
   isBoolean,
   isDate,
-  isObject
+  isObject,
+  isFunction
 } = require('../types/detector');
 const { combineDefaultOptions, isBlueprintObject } = require('./utils');
 
-const parseValue = (paramsOrOptions, value) => {
-  let valid = false;
+const parseValue = (listOfConstants, value) => {
+  let validValue = false;
 
-  forEach(paramsOrOptions, constantValue => {
-    if (!valid) {
+  forEach(listOfConstants, constantValue => {
+    if (!validValue) {
       if (
         isString(constantValue) ||
         isNumber(constantValue) ||
         isBoolean(constantValue)
       ) {
-        valid = value === constantValue;
+        validValue = value === constantValue;
       } else if (isDate(constantValue) || moment.isMoment(constantValue)) {
-        valid = moment(constantValue).isSame(value);
+        validValue = moment(constantValue).isSame(value);
       } else if (isBlueprintObject(constantValue)) {
         const instance = constantValue.getInstance();
         const [err] = instance.normalize(value);
-        valid = err;
+        validValue = err;
       } else if (isObject(constantValue)) {
-        valid = isEqual(constantValue, paramsOrOptions);
+        validValue = isEqual(constantValue, value);
       }
     }
   });
 
-  return [valid, value];
+  return [validValue, value];
 };
 
 const parserMaker = paramsOrOptions => {
   return (key, value) => {
-    if (isArray(paramsOrOptions)) {
-      return parseValue(paramsOrOptions, value);
-    } else if (paramsOrOptions.list) {
-      return parseValue(paramsOrOptions.list, value);
-    } else {
+    let parsedVal = null;
+
+    if (!isArray(paramsOrOptions) && !paramsOrOptions.list) {
       throw new TypeError(`List constant of ${key} is undefined!`);
     }
+
+    const listConstants = Object.assign(
+      [],
+      isArray(paramsOrOptions) ? paramsOrOptions : paramsOrOptions.list
+    );
+
+    const [isValidValue, result] = parseValue(listConstants, value);
+
+    if (isValidValue) parsedVal = result;
+
+    if (!isValidValue && !isArray(paramsOrOptions)) {
+      parsedVal = isFunction(paramsOrOptions.default)
+        ? paramsOrOptions.default.call(null)
+        : paramsOrOptions.default;
+    }
+
+    return [isValidValue, parsedVal];
   };
 };
 
