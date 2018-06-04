@@ -79,9 +79,19 @@ test('Object array with options type', () => {
     data: types.options([100, 200, 'three']),
   })
 
+  const Complex1 = blueprint.array({
+    data: types.options({ list: [100, 200, 'three'] }),
+  })
+
   const Complex2 = blueprint.array(
     blueprint.object({
       data: types.options([400, 500, 'six']),
+    })
+  )
+
+  const Complex3 = blueprint.array(
+    blueprint.object({
+      data: types.options({ list: [400, 500, 'six'] }),
     })
   )
 
@@ -91,7 +101,19 @@ test('Object array with options type', () => {
     { data: null },
   ])
 
+  expect(Complex1([{ data: 100 }, { data: 200 }, { data: 300 }])).toEqual([
+    { data: 100 },
+    { data: 200 },
+    { data: null },
+  ])
+
   expect(Complex2([{ data: 400 }, { data: 'six' }, { data: 300 }])).toEqual([
+    { data: 400 },
+    { data: 'six' },
+    { data: null },
+  ])
+
+  expect(Complex3([{ data: 400 }, { data: 'six' }, { data: 300 }])).toEqual([
     { data: 400 },
     { data: 'six' },
     { data: null },

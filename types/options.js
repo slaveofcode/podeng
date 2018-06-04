@@ -59,7 +59,7 @@ const parserMaker = paramsOrOptions => {
     if (!isValidValue && !isArray(paramsOrOptions)) {
       parsedVal = isFunction(paramsOrOptions.default)
         ? paramsOrOptions.default.call(null)
-        : paramsOrOptions.default;
+        : paramsOrOptions.default ? paramsOrOptions.default : null;
     }
 
     return [isValidValue, parsedVal];
