@@ -2,7 +2,7 @@
 const { isString, isNumber, isBoolean } = require('./detector');
 const stringType = require('./string');
 const integerType = require('./integer');
-const constantType = require('./constant');
+const optionsType = require('./options');
 
 const makeHandler = (parserMaker, validate, getOptions, getTypeOptions) => {
   const handler = (paramsOrOptions = {}) => {
@@ -71,10 +71,10 @@ module.exports = {
     integerType.getOptions,
     integerType.getTypeOptions
   ),
-  constant: makeHandler(
-    constantType.parserMaker,
-    constantType.validate,
-    constantType.getOptions,
-    constantType.getTypeOptions
+  options: makeHandler(
+    optionsType.parserMaker,
+    optionsType.validate,
+    optionsType.getOptions,
+    optionsType.getTypeOptions
   )
 };

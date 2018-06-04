@@ -8,13 +8,13 @@ const PodengError = require('../validator/errors/PodengError')
 
 test('Validate value on wrong type passed', () => {
   const Car = blueprint.object({
-    brand: types.constant(['Honda', 'Toyota', 'Mitsubishi']),
-    color: types.constant({ list: ['Red', 'Green', 'Blue'] }),
+    brand: types.options(['Honda', 'Toyota', 'Mitsubishi']),
+    color: types.options({ list: ['Red', 'Green', 'Blue'] }),
   })
 
   const Complex = blueprint.object({
-    data: types.constant([{ data: 'value' }, 1234, 'abcde']),
-    data2: types.constant({ list: [100, 200, 300], default: [] }),
+    data: types.options([{ data: 'value' }, 1234, 'abcde']),
+    data2: types.options({ list: [100, 200, 300], default: [] }),
   })
 
   expect(Car({ brand: 'Yamaha', color: 'Green' })).toEqual({

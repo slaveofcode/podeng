@@ -13,25 +13,25 @@ const {
 } = require('../types/detector');
 const { combineDefaultOptions, isBlueprintObject } = require('./utils');
 
-const parseValue = (listOfConstants, value) => {
+const parseValue = (listOfOptions, value) => {
   let validValue = false;
 
-  forEach(listOfConstants, constantValue => {
+  forEach(listOfOptions, optionValue => {
     if (!validValue) {
       if (
-        isString(constantValue) ||
-        isNumber(constantValue) ||
-        isBoolean(constantValue)
+        isString(optionValue) ||
+        isNumber(optionValue) ||
+        isBoolean(optionValue)
       ) {
-        validValue = value === constantValue;
-      } else if (isDate(constantValue) || moment.isMoment(constantValue)) {
-        validValue = moment(constantValue).isSame(value);
-      } else if (isBlueprintObject(constantValue)) {
-        const instance = constantValue.getInstance();
+        validValue = value === optionValue;
+      } else if (isDate(optionValue) || moment.isMoment(optionValue)) {
+        validValue = moment(optionValue).isSame(value);
+      } else if (isBlueprintObject(optionValue)) {
+        const instance = optionValue.getInstance();
         const [err] = instance.normalize(value);
         validValue = err;
-      } else if (isObject(constantValue)) {
-        validValue = isEqual(constantValue, value);
+      } else if (isObject(optionValue)) {
+        validValue = isEqual(optionValue, value);
       }
     }
   });
@@ -44,15 +44,15 @@ const parserMaker = paramsOrOptions => {
     let parsedVal = null;
 
     if (!isArray(paramsOrOptions) && !paramsOrOptions.list) {
-      throw new TypeError(`List constant of ${key} is undefined!`);
+      throw new TypeError(`List options of ${key} is undefined!`);
     }
 
-    const listConstants = Object.assign(
+    const listOptions = Object.assign(
       [],
       isArray(paramsOrOptions) ? paramsOrOptions : paramsOrOptions.list
     );
 
-    const [isValidValue, result] = parseValue(listConstants, value);
+    const [isValidValue, result] = parseValue(listOptions, value);
 
     if (isValidValue) parsedVal = result;
 
@@ -75,11 +75,11 @@ const validate = (key, value, paramsOrOptions) => {
   } else if (paramsOrOptions.list) {
     valid = parseValue(paramsOrOptions.list, value);
   } else {
-    throw new TypeError(`List constant of ${key} is undefined!`);
+    throw new TypeError(`List options of ${key} is undefined!`);
   }
 
   if (!valid) {
-    errorDetails.push(`Value ${value} is not listed on constants of ${key}`);
+    errorDetails.push(`Value ${value} is not listed on options of ${key}`);
   }
 
   return [errorDetails, valid];
