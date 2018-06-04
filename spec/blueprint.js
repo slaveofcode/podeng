@@ -44,7 +44,7 @@ const Items = blueprint.array(Item)
 const Color = blueprint.object({ name: type.string })
 const Cars = blueprint.array({
   type: types.string,
-  brand: types.constant(['Honda', 'Toyota', 'Ford']), // constant could be a primitive types, blueprint object (not array), with single or multiple (array) values
+  brand: types.constant({ list: ['Honda', 'Toyota', 'Ford'] }), // constant could be a primitive types, blueprint object (not array), with single or multiple (array) values
   variant: types.constant([Color, Item]),
   color: types.constant(Color),
 })

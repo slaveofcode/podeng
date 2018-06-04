@@ -89,14 +89,14 @@ test('Object include integer with validation', () => {
     {
       value: types.integer,
     },
-    { throwOnError: TypeError('The Value Error') }
+    { throwOnError: new TypeError('The Value Error') }
   )
 
   const ObjInteger3 = blueprint.object(
     {
       value: types.integer,
     },
-    { onError: TypeError('The Value Error') }
+    { onError: TypeError('The Invalid onError value') }
   )
 
   const ObjInteger4 = blueprint.object(

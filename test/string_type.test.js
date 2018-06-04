@@ -148,7 +148,7 @@ test('Object include string with validation', () => {
     {
       value: types.string,
     },
-    { throwOnError: TypeError('The Value Error') }
+    { throwOnError: new TypeError('The Value Error') }
   )
 
   const ObjString3 = blueprint.object(

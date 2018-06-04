@@ -43,7 +43,7 @@ const errorHandler = options => {
      * Handle custom error class
      */
     if (options.throwOnError instanceof Error) {
-      throw new options.throwOnError() // eslint-disable-line
+      throw options.throwOnError // eslint-disable-line
     }
 
     /**

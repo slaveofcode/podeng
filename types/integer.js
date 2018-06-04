@@ -99,7 +99,10 @@ const getOptions = () =>
     maxDigits: null
   });
 
+const getTypeOptions = () => ({ isDirectValueSet: false });
+
 module.exports = {
+  getTypeOptions,
   parserMaker,
   validate,
   getOptions

@@ -2,16 +2,24 @@
 const { isString, isNumber, isBoolean } = require('./detector');
 const stringType = require('./string');
 const integerType = require('./integer');
+const optionsType = require('./options');
 
-const makeHandler = (parserMaker, validate, getOptions) => {
-  const handler = (options = {}) => {
-    options = Object.assign(getOptions(), options);
+const makeHandler = (parserMaker, validate, getOptions, getTypeOptions) => {
+  const handler = (paramsOrOptions = {}) => {
+    const typeOptions = getTypeOptions();
+
+    const options = Object.assign(
+      getOptions(),
+      !typeOptions.isDirectValueSet ? paramsOrOptions : {}
+    );
 
     const objHandler = () => {};
 
     objHandler.validate = validate;
 
-    objHandler.parse = parserMaker(options);
+    objHandler.parse = parserMaker(
+      typeOptions.isDirectValueSet ? paramsOrOptions : options
+    );
 
     /**
      * Returning serialized name if set
@@ -54,11 +62,19 @@ module.exports = {
   string: makeHandler(
     stringType.parserMaker,
     stringType.validate,
-    stringType.getOptions
+    stringType.getOptions,
+    stringType.getTypeOptions
   ),
   integer: makeHandler(
     integerType.parserMaker,
     integerType.validate,
-    integerType.getOptions
+    integerType.getOptions,
+    integerType.getTypeOptions
+  ),
+  options: makeHandler(
+    optionsType.parserMaker,
+    optionsType.validate,
+    optionsType.getOptions,
+    optionsType.getTypeOptions
   )
 };

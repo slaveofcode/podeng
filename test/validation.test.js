@@ -54,6 +54,6 @@ test('Returns error details when checking params via Validator', () => {
 
   expect(err).toBe(true);
   expect(errDetails).toEqual({
-    hairColor: 'failed to parse hairColor as a String type'
+    hairColor: 'failed to parse "hairColor" with its type'
   });
 });
