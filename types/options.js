@@ -28,8 +28,8 @@ const parseValue = (listOfOptions, value) => {
         validValue = moment(optionValue).isSame(value);
       } else if (isBlueprintObject(optionValue)) {
         const instance = optionValue.getInstance();
-        const [err] = instance.normalize(value);
-        validValue = err;
+        const [gotError] = instance.normalize(value);
+        validValue = !gotError;
       } else if (isObject(optionValue)) {
         validValue = isEqual(optionValue, value);
       }

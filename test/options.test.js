@@ -17,6 +17,15 @@ test('Validate value on wrong type passed', () => {
     data2: types.options({ list: [100, 200, 300], default: [] }),
   })
 
+  const Complex2 = blueprint.object({
+    data: types.options([
+      blueprint.object({ key: types.string }),
+      { someKey: 'someValue' },
+      100,
+      180,
+    ]),
+  })
+
   expect(Car({ brand: 'Yamaha', color: 'Green' })).toEqual({
     brand: null,
     color: 'Green',
@@ -30,6 +39,38 @@ test('Validate value on wrong type passed', () => {
   expect(Complex({ data: { data: 'value' }, data2: '200' })).toEqual({
     data: { data: 'value' },
     data2: [],
+  })
+
+  expect(
+    Complex2({
+      data: 100,
+    })
+  ).toEqual({
+    data: 100,
+  })
+
+  expect(
+    Complex2({
+      data: { someKey: 'someValue' },
+    })
+  ).toEqual({
+    data: { someKey: 'someValue' },
+  })
+
+  expect(
+    Complex2({
+      data: 10,
+    })
+  ).toEqual({
+    data: null,
+  })
+
+  expect(
+    Complex2({
+      data: { key: 'someValue' },
+    })
+  ).toEqual({
+    data: { key: 'someValue' },
   })
 })
 

@@ -27,7 +27,7 @@ const isBlueprintObject = obj => {
     isFunction(obj.getHandler) &&
     includes(keys(obj), 'getInstance') &&
     isFunction(obj.getInstance);
-  return isValidFunction ? obj instanceof BlueprintClass : false;
+  return isValidFunction ? obj.getInstance() instanceof BlueprintClass : false;
 };
 
 module.exports = {
