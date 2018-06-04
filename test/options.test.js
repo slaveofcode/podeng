@@ -120,118 +120,27 @@ test('Object array with options type', () => {
   ])
 })
 
-// test('Object include integer with validation', () => {
-//   const ObjInteger1 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     { throwOnError: true }
-//   )
+test('Object include integer with validation', () => {
+  const Validate = blueprint.object(
+    {
+      data: types.options(['valid_1', 'valid_2']),
+    },
+    { throwOnError: true }
+  )
 
-//   const ObjInteger2 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     { throwOnError: TypeError('The Value Error') }
-//   )
+  const Validate2 = blueprint.object(
+    {
+      number: types.options([100, 200, 340]),
+    },
+    {
+      throwOnError: new TypeError('Error on Validate2'),
+    }
+  )
 
-//   const ObjInteger3 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     { onError: TypeError('The Value Error') }
-//   )
+  const fnToExec1 = params => () => Validate(params)
+  const fnToExec2 = params => () => Validate2(params)
 
-//   const ObjInteger4 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     {
-//       onError: {
-//         onKey: (key, err) => {
-//           throw new TypeError('Error coming from onKey')
-//         },
-//       },
-//     }
-//   )
-
-//   const ObjInteger5 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     {
-//       onError: {
-//         onAll: errors => {
-//           throw new TypeError('Error coming from onAll')
-//         },
-//       },
-//     }
-//   )
-
-//   const ObjInteger6 = blueprint.object({
-//     someKey: types.integer({ min: 'abc' }),
-//   })
-//   const ObjInteger7 = blueprint.object({
-//     someKey: types.integer({ max: 'abc' }),
-//   })
-//   const ObjInteger8 = blueprint.object({
-//     someKey: types.integer({ minDigits: 'abc' }),
-//   })
-//   const ObjInteger9 = blueprint.object({
-//     someKey: types.integer({ maxDigits: 'abc' }),
-//   })
-
-//   const willThrow = obj => {
-//     return () => {
-//       obj.call(null, {
-//         value: function() {},
-//       })
-//     }
-//   }
-
-//   expect(willThrow(ObjInteger1)).toThrow(PodengError)
-//   expect(willThrow(ObjInteger2)).toThrow(TypeError)
-//   expect(willThrow(ObjInteger3)).not.toThrow()
-//   expect(willThrow(ObjInteger4)).toThrow(TypeError('Error coming from onKey'))
-//   expect(willThrow(ObjInteger5)).toThrow(TypeError('Error coming from onAll'))
-//   expect(() => ObjInteger6({ someKey: '123' })).toThrow(
-//     TypeError(
-//       'Integer: Invalid "min" option value for someKey, it should be in numeric type!'
-//     )
-//   )
-//   expect(() => ObjInteger7({ someKey: '123' })).toThrow(
-//     TypeError(
-//       'Integer: Invalid "max" option value for someKey, it should be in numeric type!'
-//     )
-//   )
-//   expect(() => ObjInteger8({ someKey: '123' })).toThrow(
-//     TypeError(
-//       'Integer: Invalid "minDigits" option value for someKey, it should be in numeric type!'
-//     )
-//   )
-//   expect(() => ObjInteger9({ someKey: '123' })).toThrow(
-//     TypeError(
-//       'Integer: Invalid "maxDigits" option value for someKey, it should be in numeric type!'
-//     )
-//   )
-// })
-
-// test('Will validate using custom value', () => {
-//   const Obj = blueprint.object({
-//     value: types.integer({
-//       validate: val => val > 100,
-//     }),
-//   })
-
-//   const Obj2 = blueprint.object({
-//     value: types.integer({
-//       validate: val => val !== 1818,
-//       default: () => 9999,
-//     }),
-//   })
-
-//   expect(Obj({ value: '50' })).toEqual({ value: null })
-//   expect(Obj({ value: '110' })).toEqual({ value: 110 })
-//   expect(Obj2({ value: '123' })).toEqual({ value: 123 })
-//   expect(Obj2({ value: 1818 })).toEqual({ value: 9999 })
-// })
+  expect(fnToExec1({ data: () => {} })).toThrow(PodengError)
+  expect(fnToExec1({ data: 'valid_3' })).toThrow(PodengError)
+  expect(fnToExec2({ data: 350 })).toThrow(TypeError('Error on Validate2'))
+})

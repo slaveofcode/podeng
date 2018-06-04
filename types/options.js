@@ -62,7 +62,9 @@ const parserMaker = paramsOrOptions => {
         : paramsOrOptions.default ? paramsOrOptions.default : null;
     }
 
-    return [isValidValue, parsedVal];
+    const err = !isValidValue;
+
+    return [err, parsedVal];
   };
 };
 
