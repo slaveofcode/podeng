@@ -74,29 +74,29 @@ test('Validate value on wrong type passed', () => {
   })
 })
 
-// test('Object array with integer options', () => {
-//   const ObjInteger = blueprint.object({
-//     value1: types.integer,
-//     value2: types.integer({ min: 200 }),
-//   })
+test('Object array with options type', () => {
+  const Complex = blueprint.array({
+    data: types.options([100, 200, 'three']),
+  })
 
-//   const Collections = blueprint.array(ObjInteger)
+  const Complex2 = blueprint.array(
+    blueprint.object({
+      data: types.options([400, 500, 'six']),
+    })
+  )
 
-//   expect(
-//     Collections([
-//       { value1: 123, value2: 123 },
-//       { value1: 456, value2: 456 },
-//       { value1: '789.12', value2: '789' },
-//     ])
-//   ).toEqual([
-//     {
-//       value1: 123,
-//       value2: null,
-//     },
-//     { value1: 456, value2: 456 },
-//     { value1: 789, value2: 789 },
-//   ])
-// })
+  expect(Complex([{ data: 100 }, { data: 200 }, { data: 300 }])).toEqual([
+    { data: 100 },
+    { data: 200 },
+    { data: null },
+  ])
+
+  expect(Complex2([{ data: 400 }, { data: 'six' }, { data: 300 }])).toEqual([
+    { data: 400 },
+    { data: 'six' },
+    { data: null },
+  ])
+})
 
 // test('Object include integer with validation', () => {
 //   const ObjInteger1 = blueprint.object(
