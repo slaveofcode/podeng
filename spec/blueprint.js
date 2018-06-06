@@ -44,9 +44,9 @@ const Items = blueprint.array(Item)
 const Color = blueprint.object({ name: type.string })
 const Cars = blueprint.array({
   type: types.string,
-  brand: types.constant({ list: ['Honda', 'Toyota', 'Ford'] }), // constant could be a primitive types, blueprint object (not array), with single or multiple (array) values
-  variant: types.constant([Color, Item]),
-  color: types.constant(Color),
+  brand: types.options({ list: ['Honda', 'Toyota', 'Ford'] }), // options could be a primitive types, blueprint object (not array), with single or multiple (array) values
+  variant: types.options([Color, Item]),
+  color: types.options(Color),
 })
 
 const parsedItems = Items([
@@ -119,7 +119,7 @@ const Food = blueprint.object({
     onTrue: 'Yes',
     onFalse: 'No',
   }),
-  isSpicyShorthand: conditions(foodEvaluator, 'Yes', 'No'),
+  isSpicyShorthand: types.conditions(foodEvaluator, 'Yes', 'No'),
   isSpicyAndFromAsian: types.conditions({
     evaluates: [foodEvaluator, asianFoodEvaluator],
     onTrue: 'Yes',
@@ -145,7 +145,7 @@ const Mutant = blueprint.extend(
   Person,
   {
     breathOnWater: type.bool,
-    ability: type.constant(['Fly', 'Run Faster', 'Jump High']),
+    ability: type.options(['Fly', 'Run Faster', 'Jump High']),
   },
   {
     giveWarning: false,
