@@ -14,7 +14,7 @@ test('Validate value on wrong type passed', () => {
 
   const Complex = blueprint.object({
     data: types.options([{ data: 'value' }, 1234, 'abcde']),
-    data2: types.options({ list: [100, 200, 300], default: [] }),
+    data2: types.options({ list: [100, 200, 300], default: '837OOO6' }),
   })
 
   const Complex2 = blueprint.object({
@@ -38,7 +38,7 @@ test('Validate value on wrong type passed', () => {
 
   expect(Complex({ data: { data: 'value' }, data2: '200' })).toEqual({
     data: { data: 'value' },
-    data2: [],
+    data2: '837OOO6',
   })
 
   expect(
