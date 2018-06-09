@@ -100,12 +100,12 @@ const normalizeEmbedValue = (embedObj, valueToNormalize) => {
   return result;
 };
 
-const normalizeValue = function (valuesToNormalize) {
+const normalizeValue = function (valuesToNormalize, onValidation = false) {
   if (this.isArray && !isArray(valuesToNormalize)) {
     throw new TypeError('Wrong value type, you must supply array values!');
   }
 
-  const normalize = (objValue, schema) => {
+  const normalize = (objValue, schema, config = { doValidation: false }) => {
     const normalized = {};
     const errorResults = {};
 
@@ -120,14 +120,34 @@ const normalizeValue = function (valuesToNormalize) {
 
         if (result !== null) normalized[key] = result;
       } else {
+        const errorList = [];
+
         const handler = initiateTypeHandler(typeHandler);
 
-        const [fail, normalizedValue] = handler.parse(key, objValue[key]);
+        let [fail, normalizedValue] = handler.parse(key, objValue[key]);
+
+        if (config.doValidation) {
+          const [errorDetails, valid] = handler.validate(
+            key,
+            objValue[key],
+            handler.getOptions()
+          );
+          if (!valid) errorDetails.forEach(err => errorList.push(err));
+          fail = !valid;
+        }
+
         if (!fail || (fail && !handler.isHideOnFail())) {
           normalized[key] = normalizedValue;
         }
 
-        if (fail) errorResults[key] = `failed to parse "${key}" with its type`;
+        // default error message
+        if (fail && errorList.length === 0) {
+          errorList.push(`failed to parse "${key}" with its type`);
+        }
+
+        if (errorList.length > 0) {
+          errorResults[key] = Object.assign([], errorList);
+        }
       }
     });
 
@@ -139,7 +159,8 @@ const normalizeValue = function (valuesToNormalize) {
   if (!this.isArray) {
     const [errors, normalizedResult] = normalize(
       valuesToNormalize,
-      this.schema
+      this.schema,
+      { doValidation: onValidation }
     );
 
     if (isAllowUnknownProperties) {
@@ -152,7 +173,9 @@ const normalizeValue = function (valuesToNormalize) {
     return [keys(errors).length > 0, errors, normalizedResult];
   } else {
     const results = valuesToNormalize.map(v => {
-      const [errorDetails, normalizedResult] = normalize(v, this.schema);
+      const [errorDetails, normalizedResult] = normalize(v, this.schema, {
+        doValidation: onValidation
+      });
       if (isAllowUnknownProperties) {
         Object.assign(
           normalizedResult,
@@ -173,10 +196,11 @@ const normalizeValue = function (valuesToNormalize) {
   }
 };
 
-const serializeValue = function (valuesToSerialize) {
+const serializeValue = function (valuesToSerialize, onValidation = false) {
   let serialized = this.isArray ? [] : {};
   const [isError, errorDetails, normalizedValues] = this.normalize(
-    valuesToSerialize
+    valuesToSerialize,
+    { doValidation: onValidation }
   );
 
   const isAllowUnknownProperties = this.options.allowUnknownProperties;
@@ -223,7 +247,7 @@ const serializeValue = function (valuesToSerialize) {
   return [isError, errorDetails, serialized];
 };
 
-const deserializeValue = function (valuesToDeserialize) {
+const deserializeValue = function (valuesToDeserialize, onValidation = false) {
   if (this.isArray && !isArray(valuesToDeserialize)) {
     throw new TypeError('Wrong value type, you must supply array values!');
   }
@@ -243,11 +267,13 @@ const deserializeValue = function (valuesToDeserialize) {
     return deserializedNames;
   };
 
-  const deserialize = (objValue, schema) => {
+  const deserialize = (objValue, schema, config = { doValidation: false }) => {
     const deserialized = {};
     const errorResults = {};
 
     forEach(schema, (typeHandler, key) => {
+      const errorList = [];
+
       const handler = initiateTypeHandler(typeHandler);
 
       const deserializeFrom =
@@ -257,10 +283,20 @@ const deserializeValue = function (valuesToDeserialize) {
             : handler.getSerializeName()
           : handler.getDeserializeName();
 
-      const [fail, normalizedValue] = handler.parse(
+      let [fail, normalizedValue] = handler.parse(
         deserializeFrom,
         objValue[deserializeFrom]
       );
+
+      if (config.doValidation) {
+        const [errorDetails, valid] = handler.validate(
+          deserializeFrom,
+          objValue[deserializeFrom],
+          handler.getOptions()
+        );
+        if (!valid) errorDetails.forEach(err => errorList.push(err));
+        fail = !valid;
+      }
 
       if (!fail || (fail && !handler.isHideOnFail())) {
         if (!handler.isHideOnSerialization()) {
@@ -268,10 +304,15 @@ const deserializeValue = function (valuesToDeserialize) {
         }
       }
 
-      if (fail) {
-        Object.assign(errorResults, {
-          [key]: `failed to deserialize from "${deserializeFrom}" to "${key}" with its type`
-        });
+      // default error message
+      if (fail && errorList.length === 0) {
+        errorList.push(
+          `failed to deserialize from "${deserializeFrom}" to "${key}" with its type`
+        );
+      }
+
+      if (errorList.length > 0) {
+        errorResults[key] = Object.assign([], errorList);
       }
     });
 
@@ -283,7 +324,8 @@ const deserializeValue = function (valuesToDeserialize) {
   if (!this.isArray) {
     const [errors, deserializedResult] = deserialize(
       valuesToDeserialize,
-      this.schema
+      this.schema,
+      { doValidation: onValidation }
     );
 
     if (isAllowUnknownProperties) {
@@ -303,7 +345,9 @@ const deserializeValue = function (valuesToDeserialize) {
     return [keys(errors).length > 0, errors, deserializedResult];
   } else {
     const results = valuesToDeserialize.map(v => {
-      const [errorDetails, deserializedResult] = deserialize(v, this.schema);
+      const [errorDetails, deserializedResult] = deserialize(v, this.schema, {
+        doValidation: onValidation
+      });
       if (isAllowUnknownProperties) {
         const deserializedKeys = getDeserializedKeys(v, this.schema);
         Object.assign(

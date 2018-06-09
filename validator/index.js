@@ -35,7 +35,6 @@ const validatorCreator = (component, options = {}) => {
 
   const handleUnknownParams = (schema, params, throwing = true) => {
     let errorUnknownParams = null;
-    console.log(schema);
     const unknownParams = difference(keys(params), keys(schema));
     if (unknownParams.length > 0) {
       if (throwing) {
@@ -66,8 +65,8 @@ const validatorCreator = (component, options = {}) => {
     if (!params) throw new TypeError(ERROR_NO_VALUE_GIVEN);
 
     const [err, errorDetails] = !this.options.deserialization
-      ? this.component.getInstance().normalize(params)
-      : this.component.getInstance().deserialize(params);
+      ? this.component.getInstance().normalize(params, true)
+      : this.component.getInstance().deserialize(params, true);
 
     if (err && !this.options.allowUnknownProperties) {
       handleUnknownParams(this.component.getSchema(), params);
@@ -87,8 +86,8 @@ const validatorCreator = (component, options = {}) => {
     if (!params) throw new TypeError(ERROR_NO_VALUE_GIVEN);
 
     const [err, errorDetails] = !this.options.deserialization
-      ? this.component.getInstance().normalize(params)
-      : this.component.getInstance().deserialize(params);
+      ? this.component.getInstance().normalize(params, true)
+      : this.component.getInstance().deserialize(params, true);
 
     if (err && !this.options.allowUnknownProperties) {
       const errorUnknown = handleUnknownParams(

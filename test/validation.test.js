@@ -61,7 +61,7 @@ const Validator = require('../validator');
 test('Able to validate using object serialize params', () => {
   const Human = blueprint.object({
     eyeColor: types.string({ serialize: { to: 'eye_color' } }),
-    hairColor: types.string({ deserialize: { from: 'hair_color' } }),
+    hairColor: types.string({ min: 5, deserialize: { from: 'hair_color' } }),
     skin_color: types.string
   });
 
@@ -106,6 +106,8 @@ test('Able to validate using object serialize params', () => {
       'failed to deserialize from "hair_color" to "hairColor" with its type'
   });
 
-  expect(err2).toBe(false);
-  expect(errDetails2).toEqual({});
+  expect(err2).toBe(true);
+  expect(errDetails2).toEqual({
+    hairColor: ['Minimum value of hairColor is 5']
+  });
 });

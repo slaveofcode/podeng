@@ -34,7 +34,9 @@ const parseValue = (value, stringify = true) => {
   let err = null;
   const parsedValue = isString(value)
     ? value
-    : stringify ? JSON.stringify(value) : undefined;
+    : stringify
+      ? JSON.stringify(value)
+      : undefined;
 
   if (!parsedValue) err = true;
   return [err, parsedValue];
@@ -72,7 +74,6 @@ const parserMaker = options => {
      */
     const doStringify = options.hideOnFail ? false : options.stringify;
     let [err, result] = parseValue(value, doStringify);
-
     if (!err) {
       const [, valid] = validate(key, value, options);
       if (valid) parsedVal = result;
