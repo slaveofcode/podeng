@@ -126,14 +126,18 @@ const normalizeValue = function (valuesToNormalize, onValidation = false) {
 
         let [fail, normalizedValue] = handler.parse(key, objValue[key]);
 
+        // only execute if for validation purpose
         if (config.doValidation) {
           const [errorDetails, valid] = handler.validate(
             key,
             objValue[key],
             handler.getOptions()
           );
-          if (!valid) errorDetails.forEach(err => errorList.push(err));
-          fail = !valid;
+
+          if (!valid) {
+            fail = true;
+            errorDetails.forEach(err => errorList.push(err));
+          }
         }
 
         if (!fail || (fail && !handler.isHideOnFail())) {

@@ -47,10 +47,10 @@ const validate = (key, value, options = { min: null, max: null }) => {
   const { min, max } = options;
 
   const validMin = min ? value.length >= min : true;
-  if (!validMin) errorDetails.push(`Minimum value of ${key} is ${min}`);
+  if (!validMin) errorDetails.push(`Minimum value of "${key}" is ${min}`);
 
   const validMax = max ? value.length <= max : true;
-  if (!validMax) errorDetails.push(`Maximum value of ${key} is ${max}`);
+  if (!validMax) errorDetails.push(`Maximum value of "${key}" is ${max}`);
 
   const valid = !!(validMin && validMax);
 
@@ -74,6 +74,7 @@ const parserMaker = options => {
      */
     const doStringify = options.hideOnFail ? false : options.stringify;
     let [err, result] = parseValue(value, doStringify);
+
     if (!err) {
       const [, valid] = validate(key, value, options);
       if (valid) parsedVal = result;
