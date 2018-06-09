@@ -11,7 +11,7 @@ const isParamsValid = params => {
       const validObj = isObject(objArg);
       if (!validObj) return false;
 
-      return isFunction(objArg.evaluates) && objArg.onTrue && objArg.onFalse;
+      return isFunction(objArg.evaluates) && objArg.onOk && objArg.onFail;
     } else {
       return isFunction(params[0]) && params[1] && params[2];
     }
@@ -39,9 +39,12 @@ const evaluatesCondition = ({
   negativeValue
 }) => {
   const result = resolverEvaluator(resolvers, value);
-  return isBoolean(result)
-    ? result ? positiveValue : negativeValue
+  const resolvedValue = isBoolean(result)
+    ? result
+      ? positiveValue
+      : negativeValue
     : negativeValue;
+  return isFunction(resolvedValue) ? resolvedValue(value) : resolvedValue;
 };
 
 const parserMaker = (...params) => {
@@ -65,8 +68,8 @@ const parserMaker = (...params) => {
     } else if (params.length === 1) {
       const objParam = params[0];
       const evaluator = objParam.evaluates;
-      const positiveValue = objParam.onTrue;
-      const negativeValue = objParam.onFalse;
+      const positiveValue = objParam.onOk;
+      const negativeValue = objParam.onFail;
       parsedVal = evaluatesCondition({
         value,
         resolvers: evaluator,
