@@ -1,8 +1,11 @@
 'use strict';
 
+const { isBlueprintObject } = require('../types/utils');
+
 const DEFAULT_OPTIONS = {
   allowUnknownProperties: true,
-  customThrowMessage: null
+  customThrowMessage: null,
+  deserialization: false
 };
 
 const combineDefaultOptions = options =>
@@ -23,6 +26,7 @@ const makeError = errorName => {
 };
 
 module.exports = {
+  isBlueprintObject,
   combineDefaultOptions,
   makeError
 };

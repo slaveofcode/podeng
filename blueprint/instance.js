@@ -42,9 +42,11 @@ const initiateTypeHandler = typehandler => {
  * @param {embedCls} embeddedObject
  */
 const resolveEmbededObj = obj =>
-  (isFunction(obj.embed) && obj.embed() instanceof embedCls
+  isFunction(obj.embed) && obj.embed() instanceof embedCls
     ? obj.embed()
-    : obj instanceof embedCls ? obj : null);
+    : obj instanceof embedCls
+      ? obj
+      : null;
 
 const handleUnknownProperties = (params, objToExclude) => {
   const registeredKeys = keys(objToExclude);
@@ -135,7 +137,10 @@ const normalizeValue = function (valuesToNormalize) {
   const isAllowUnknownProperties = this.options.allowUnknownProperties;
 
   if (!this.isArray) {
-    const [errors, normalizedResult] = normalize(valuesToNormalize, this.schema);
+    const [errors, normalizedResult] = normalize(
+      valuesToNormalize,
+      this.schema
+    );
 
     if (isAllowUnknownProperties) {
       Object.assign(
@@ -149,7 +154,10 @@ const normalizeValue = function (valuesToNormalize) {
     const results = valuesToNormalize.map(v => {
       const [errorDetails, normalizedResult] = normalize(v, this.schema);
       if (isAllowUnknownProperties) {
-        Object.assign(normalizedResult, handleUnknownProperties(v, this.schema));
+        Object.assign(
+          normalizedResult,
+          handleUnknownProperties(v, this.schema)
+        );
       }
       return [errorDetails, normalizedResult];
     });
@@ -224,9 +232,12 @@ const deserializeValue = function (valuesToDeserialize) {
     const deserializedNames = [];
     forEach(schema, (typeHandler, key) => {
       const handler = initiateTypeHandler(typeHandler);
-      const deserializeFrom = handler.getDeserializeName() === null
-        ? handler.getSerializeName() === null ? key : handler.getSerializeName()
-        : handler.getDeserializeName();
+      const deserializeFrom =
+        handler.getDeserializeName() === null
+          ? handler.getSerializeName() === null
+            ? key
+            : handler.getSerializeName()
+          : handler.getDeserializeName();
       deserializedNames.push(deserializeFrom);
     });
     return deserializedNames;
@@ -239,9 +250,12 @@ const deserializeValue = function (valuesToDeserialize) {
     forEach(schema, (typeHandler, key) => {
       const handler = initiateTypeHandler(typeHandler);
 
-      const deserializeFrom = handler.getDeserializeName() === null
-        ? handler.getSerializeName() === null ? key : handler.getSerializeName()
-        : handler.getDeserializeName();
+      const deserializeFrom =
+        handler.getDeserializeName() === null
+          ? handler.getSerializeName() === null
+            ? key
+            : handler.getSerializeName()
+          : handler.getDeserializeName();
 
       const [fail, normalizedValue] = handler.parse(
         deserializeFrom,
@@ -254,7 +268,11 @@ const deserializeValue = function (valuesToDeserialize) {
         }
       }
 
-      if (fail) errorResults[key] = `failed to parse ${key} as a String type`;
+      if (fail) {
+        Object.assign(errorResults, {
+          [key]: `failed to deserialize from "${deserializeFrom}" to "${key}" with its type`
+        });
+      }
     });
 
     return [errorResults, deserialized];
