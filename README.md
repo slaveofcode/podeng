@@ -1,2 +1,3 @@
-# ohmyparser
-Just simple parser
+# PodengJS
+
+Simple JSON value parser for your JSON structure.
