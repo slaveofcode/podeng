@@ -76,19 +76,19 @@ const validate = (
   if (maxDigits) maxDigits = parseInt(maxDigits);
 
   const validMin = min ? value >= min : true;
-  if (!validMin) errorDetails.push(`Minimum value of ${key} is ${min}`);
+  if (!validMin) errorDetails.push(`Minimum value of "${key}" is ${min}`);
 
   const validMax = max ? value <= max : true;
-  if (!validMax) errorDetails.push(`Maximum value of ${key} is ${max}`);
+  if (!validMax) errorDetails.push(`Maximum value of "${key}" is ${max}`);
 
   const validMinDigits = minDigits ? value.toString().length >= minDigits : true;
   if (!validMinDigits) {
-    errorDetails.push(`Minimum value of ${key} is ${minDigits} digits`);
+    errorDetails.push(`Minimum value of "${key}" is ${minDigits} digits`);
   }
 
   const validMaxDigits = maxDigits ? value.toString().length <= maxDigits : true;
   if (!validMaxDigits) {
-    errorDetails.push(`Maximum value of ${key} is ${maxDigits} digits`);
+    errorDetails.push(`Maximum value of "${key}" is ${maxDigits} digits`);
   }
 
   const valid = validMin && validMax && validMinDigits && validMaxDigits;
