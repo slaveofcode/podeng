@@ -26,24 +26,26 @@ const makeHandler = (parserMaker, validate, getOptions, getTypeOptions) => {
      * default is null
      */
     objHandler.getSerializeName = () =>
-      (isString(options.serialize.to) || isNumber(options.serialize.to)
+      isString(options.serialize.to) || isNumber(options.serialize.to)
         ? options.serialize.to
-        : null);
+        : null;
 
     /**
      * Returning deserialized name if set
      * default is null
      */
     objHandler.getDeserializeName = () =>
-      (isString(options.deserialize.from) || isNumber(options.deserialize.from)
+      isString(options.deserialize.from) || isNumber(options.deserialize.from)
         ? options.deserialize.from
-        : null);
+        : null;
 
     /**
      * Returning status of hide the value on serialization
      */
     objHandler.isHideOnSerialization = () =>
-      !(isBoolean(options.serialize.display) ? options.serialize.display : true);
+      !(isBoolean(options.serialize.display)
+        ? options.serialize.display
+        : true);
 
     objHandler.isHideOnDeserialization = () =>
       !(isBoolean(options.deserialize.display)
@@ -51,6 +53,8 @@ const makeHandler = (parserMaker, validate, getOptions, getTypeOptions) => {
         : true);
 
     objHandler.isHideOnFail = () => options.hideOnFail;
+
+    objHandler.getOptions = () => options;
 
     return objHandler;
   };

@@ -1,8 +1,8 @@
 'use strict';
 
-const { includes, keys, difference } = require('lodash');
+const { keys, difference } = require('lodash');
 const { cls: blueprintClass } = require('../blueprint/instance');
-const { combineDefaultOptions } = require('./utils');
+const { combineDefaultOptions, isBlueprintObject } = require('./utils');
 const { isFunction } = require('../types/detector');
 const PodengError = require('./errors/PodengError');
 const { errorInitializer, ERROR_VALIDATION_NAME } = require('./errors');
@@ -14,11 +14,11 @@ const showErrorUnknownProperties = unknownProps =>
   `Unknown parameters for ${unknownProps.join(',')}`;
 
 const validatorCreator = (component, options = {}) => {
-  const hasInstanceMethod = includes(keys(component), 'getInstance');
+  const isValidObject = isBlueprintObject(component);
 
-  if (!hasInstanceMethod) throw new TypeError(ERROR_INVALID_COMPONENT);
+  if (!isValidObject) throw new TypeError(ERROR_INVALID_COMPONENT);
 
-  if (hasInstanceMethod) {
+  if (isValidObject) {
     if (!(component.getInstance() instanceof blueprintClass)) {
       throw new TypeError(ERROR_INVALID_COMPONENT);
     }
@@ -45,7 +45,9 @@ const validatorCreator = (component, options = {}) => {
         });
       }
 
-      errorUnknownParams = `Unkown parameter(s) detected: ${unknownParams.join(', ')}`;
+      errorUnknownParams = `Unkown parameter(s) detected: ${unknownParams.join(
+        ', '
+      )}`;
     }
 
     return errorUnknownParams;
@@ -62,7 +64,9 @@ const validatorCreator = (component, options = {}) => {
   const validate = function (params) {
     if (!params) throw new TypeError(ERROR_NO_VALUE_GIVEN);
 
-    const [err, errorDetails] = this.component.getInstance().normalize(params);
+    const [err, errorDetails] = !this.options.deserialization
+      ? this.component.getInstance().normalize(params, true)
+      : this.component.getInstance().deserialize(params, true);
 
     if (err && !this.options.allowUnknownProperties) {
       handleUnknownParams(this.component.getSchema(), params);
@@ -80,7 +84,10 @@ const validatorCreator = (component, options = {}) => {
 
   const check = function (params) {
     if (!params) throw new TypeError(ERROR_NO_VALUE_GIVEN);
-    const [err, errorDetails] = this.component.getInstance().normalize(params);
+
+    const [err, errorDetails] = !this.options.deserialization
+      ? this.component.getInstance().normalize(params, true)
+      : this.component.getInstance().deserialize(params, true);
 
     if (err && !this.options.allowUnknownProperties) {
       const errorUnknown = handleUnknownParams(
