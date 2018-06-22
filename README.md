@@ -1,3 +1,3 @@
 # PodengJS
 
-Simple JSON value parser for your JSON structure.
+Simple JSON value normalization to make everything gone right.
