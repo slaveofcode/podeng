@@ -85,10 +85,7 @@ const validate = (
   if (!validMin) errorDetails.push(`Minimum value of "${key}" is ${min}`);
 
   const validMax = max ? value <= max : true;
-  if (!validMax) {
-    console.log('error max: ', value, ' <> ', max);
-    errorDetails.push(`Maximum value of "${key}" is ${max}`);
-  }
+  if (!validMax) errorDetails.push(`Maximum value of "${key}" is ${max}`);
 
   const validMinDigits = minDigits
     ? value.toString().split('.')[0].length >= minDigits
