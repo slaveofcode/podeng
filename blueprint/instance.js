@@ -288,12 +288,15 @@ const deserializeValue = function (valuesToDeserialize, onValidation = false) {
           objValue[deserializeFrom],
           handler.getOptions()
         );
-        if (!valid) errorDetails.forEach(err => errorList.push(err));
-        fail = !valid;
+
+        if (!valid) {
+          fail = true;
+          errorDetails.forEach(err => errorList.push(err));
+        }
       }
 
       if (!fail || (fail && !handler.isHideOnFail())) {
-        if (!handler.isHideOnSerialization()) {
+        if (!handler.isHideOnDeserialization()) {
           deserialized[key] = normalizedValue;
         }
       }
