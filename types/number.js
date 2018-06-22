@@ -13,9 +13,7 @@ const {
 const parseValue = value => {
   if (isFloat(value)) return [false, value];
   const parsedValue = parseFloat(value);
-  const invalid =
-    (isNaN(parsedValue) && !isFloat(parsedValue)) ||
-    (!isFloat(parsedValue) && parsedValue !== 0);
+  const invalid = isNaN(parsedValue) && !isFloat(parsedValue);
   return [invalid, parsedValue];
 };
 
@@ -59,22 +57,22 @@ const validate = (
 
   if (min && !isNumber(min)) {
     throw new TypeError(
-      `Float: Invalid "min" option value for ${key}, it should be in numeric type!`
+      `Number: Invalid "min" option value for ${key}, it should be in numeric type!`
     );
   }
   if (max && !isNumber(max)) {
     throw new TypeError(
-      `Float: Invalid "max" option value for ${key}, it should be in numeric type!`
+      `Number: Invalid "max" option value for ${key}, it should be in numeric type!`
     );
   }
   if (minDigits && !isNumber(minDigits)) {
     throw new TypeError(
-      `Float: Invalid "minDigits" option value for ${key}, it should be in numeric type!`
+      `Number: Invalid "minDigits" option value for ${key}, it should be in numeric type!`
     );
   }
   if (maxDigits && !isNumber(maxDigits)) {
     throw new TypeError(
-      `Float: Invalid "maxDigits" option value for ${key}, it should be in numeric type!`
+      `Number: Invalid "maxDigits" option value for ${key}, it should be in numeric type!`
     );
   }
 

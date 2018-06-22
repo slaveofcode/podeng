@@ -3,6 +3,7 @@ const { isString, isNumber, isBoolean } = require('./detector');
 const stringType = require('./string');
 const integerType = require('./integer');
 const floatType = require('./float');
+const numberType = require('./number');
 const optionsType = require('./options');
 const conditionsType = require('./conditions');
 
@@ -79,6 +80,12 @@ module.exports = {
     floatType.validate,
     floatType.getOptions,
     floatType.getTypeOptions
+  ),
+  number: makeHandler(
+    numberType.parserMaker,
+    numberType.validate,
+    numberType.getOptions,
+    numberType.getTypeOptions
   ),
   options: makeHandler(
     optionsType.parserMaker,
