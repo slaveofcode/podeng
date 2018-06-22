@@ -57,22 +57,22 @@ const validate = (
 
   if (min && !isNumber(min)) {
     throw new TypeError(
-      `Integer: Invalid "min" option value for ${key}, it should be in numeric type!`
+      `Float: Invalid "min" option value for ${key}, it should be in numeric type!`
     );
   }
   if (max && !isNumber(max)) {
     throw new TypeError(
-      `Integer: Invalid "max" option value for ${key}, it should be in numeric type!`
+      `Float: Invalid "max" option value for ${key}, it should be in numeric type!`
     );
   }
   if (minDigits && !isNumber(minDigits)) {
     throw new TypeError(
-      `Integer: Invalid "minDigits" option value for ${key}, it should be in numeric type!`
+      `Float: Invalid "minDigits" option value for ${key}, it should be in numeric type!`
     );
   }
   if (maxDigits && !isNumber(maxDigits)) {
     throw new TypeError(
-      `Integer: Invalid "maxDigits" option value for ${key}, it should be in numeric type!`
+      `Float: Invalid "maxDigits" option value for ${key}, it should be in numeric type!`
     );
   }
 
