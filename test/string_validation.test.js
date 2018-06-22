@@ -106,6 +106,6 @@ test('Able to validate using object serialize params', () => {
 
   expect(err2).toBe(true);
   expect(errDetails2).toEqual({
-    hairColor: ['Minimum value of "hair_color" is 5']
+    hair_color: ['Minimum value of "hair_color" is 5']
   });
 });
