@@ -62,7 +62,7 @@ test('Able to validate using object serialize params', () => {
   const Obj1 = blueprint.object({
     num: types.float({ serialize: { to: 'number1' } }),
     num2: types.float({ min: 5.45, deserialize: { from: 'number2' } }),
-    num3: types.integer
+    num3: types.float
   });
 
   const validator = Validator(Obj1);
@@ -78,21 +78,27 @@ test('Able to validate using object serialize params', () => {
 
   const notThrowErr = () => {
     validator2.validate({
-      number1: 10,
-      number2: '20',
-      num3: '30'
+      number1: 10.10,
+      number2: '20.20',
+      num3: '30.30'
     });
   };
 
   const [err1, errDetails1] = validator.check({
     num: 10,
-    num2: 3,
-    num3: '30'
+    num2: 3.3,
+    num3: '30.5'
   });
 
   const [err2, errDetails2] = validator2.check({
+    number1: 10.11,
+    number2: '2.2',
+    num3: '30'
+  });
+
+  const [err3, errDetails3] = validator2.check({
     number1: 10,
-    number2: '2',
+    number2: '11.23',
     num3: '30'
   });
 
@@ -101,11 +107,19 @@ test('Able to validate using object serialize params', () => {
 
   expect(err1).toBe(true);
   expect(errDetails1).toEqual({
+    num: ['failed to parse "num" with its type'],
     num2: ['Minimum value of "num2" is 5.45']
   });
 
   expect(err2).toBe(true);
   expect(errDetails2).toEqual({
-    number2: ['Minimum value of "number2" is 5.45']
+    number2: ['Minimum value of "number2" is 5.45'],
+    num3: ['failed to deserialize from "num3" to "num3" with its type']
+  });
+
+  expect(err3).toBe(true);
+  expect(errDetails3).toEqual({
+    number1: ['failed to deserialize from "number1" to "num" with its type'],
+    num3: ['failed to deserialize from "num3" to "num3" with its type']
   });
 });

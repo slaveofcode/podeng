@@ -45,9 +45,7 @@ const validatorCreator = (component, options = {}) => {
         });
       }
 
-      errorUnknownParams = `Unkown parameter(s) detected: ${unknownParams.join(
-        ', '
-      )}`;
+      errorUnknownParams = `Unkown parameter(s) detected: ${unknownParams.join(', ')}`;
     }
 
     return errorUnknownParams;
