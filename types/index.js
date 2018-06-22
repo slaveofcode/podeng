@@ -2,6 +2,7 @@
 const { isString, isNumber, isBoolean } = require('./detector');
 const stringType = require('./string');
 const integerType = require('./integer');
+const floatType = require('./float');
 const optionsType = require('./options');
 const conditionsType = require('./conditions');
 
@@ -26,26 +27,24 @@ const makeHandler = (parserMaker, validate, getOptions, getTypeOptions) => {
      * default is null
      */
     objHandler.getSerializeName = () =>
-      isString(options.serialize.to) || isNumber(options.serialize.to)
+      (isString(options.serialize.to) || isNumber(options.serialize.to)
         ? options.serialize.to
-        : null;
+        : null);
 
     /**
      * Returning deserialized name if set
      * default is null
      */
     objHandler.getDeserializeName = () =>
-      isString(options.deserialize.from) || isNumber(options.deserialize.from)
+      (isString(options.deserialize.from) || isNumber(options.deserialize.from)
         ? options.deserialize.from
-        : null;
+        : null);
 
     /**
      * Returning status of hide the value on serialization
      */
     objHandler.isHideOnSerialization = () =>
-      !(isBoolean(options.serialize.display)
-        ? options.serialize.display
-        : true);
+      !(isBoolean(options.serialize.display) ? options.serialize.display : true);
 
     objHandler.isHideOnDeserialization = () =>
       !(isBoolean(options.deserialize.display)
@@ -74,6 +73,12 @@ module.exports = {
     integerType.validate,
     integerType.getOptions,
     integerType.getTypeOptions
+  ),
+  float: makeHandler(
+    floatType.parserMaker,
+    floatType.validate,
+    floatType.getOptions,
+    floatType.getTypeOptions
   ),
   options: makeHandler(
     optionsType.parserMaker,

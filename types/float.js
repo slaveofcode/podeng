@@ -2,12 +2,18 @@
 
 const { isNil } = require('lodash');
 const { combineDefaultOptions } = require('./utils');
-const { isInt, isFunction, isNumber, isString } = require('../types/detector');
+const {
+  isFloat,
+  isString,
+  isStringFloat,
+  isFunction,
+  isNumber
+} = require('../types/detector');
 
 const parseValue = value => {
-  if (isInt(value)) return [false, value];
-  const parsedValue = parseInt(value);
-  const invalid = isNaN(parsedValue) && !isInt(parsedValue);
+  if (isFloat(value)) return [false, value];
+  const parsedValue = parseFloat(value);
+  const invalid = isNaN(parsedValue) && !isFloat(parsedValue);
   return [invalid, parsedValue];
 };
 
@@ -51,33 +57,29 @@ const validate = (
 
   if (min && !isNumber(min)) {
     throw new TypeError(
-      `Integer: Invalid "min" option value for ${key}, it should be in numeric type!`
+      `Float: Invalid "min" option value for ${key}, it should be in numeric type!`
     );
   }
   if (max && !isNumber(max)) {
     throw new TypeError(
-      `Integer: Invalid "max" option value for ${key}, it should be in numeric type!`
+      `Float: Invalid "max" option value for ${key}, it should be in numeric type!`
     );
   }
   if (minDigits && !isNumber(minDigits)) {
     throw new TypeError(
-      `Integer: Invalid "minDigits" option value for ${key}, it should be in numeric type!`
+      `Float: Invalid "minDigits" option value for ${key}, it should be in numeric type!`
     );
   }
   if (maxDigits && !isNumber(maxDigits)) {
     throw new TypeError(
-      `Integer: Invalid "maxDigits" option value for ${key}, it should be in numeric type!`
+      `Float: Invalid "maxDigits" option value for ${key}, it should be in numeric type!`
     );
   }
 
-  if (min) min = isString(min) ? parseInt(min) : min;
-  if (max) max = isString(max) ? parseInt(max) : max;
-  if (minDigits) {
-    minDigits = isString(minDigits) ? parseInt(minDigits) : minDigits;
-  }
-  if (maxDigits) {
-    maxDigits = isString(maxDigits) ? parseInt(maxDigits) : maxDigits;
-  }
+  if (min) min = parseNumericType(min);
+  if (max) max = parseNumericType(max);
+  if (minDigits) minDigits = parseNumericType(minDigits);
+  if (maxDigits) parseNumericType(maxDigits);
 
   const validMin = min ? value >= min : true;
   if (!validMin) errorDetails.push(`Minimum value of "${key}" is ${min}`);
@@ -88,6 +90,7 @@ const validate = (
   const validMinDigits = minDigits
     ? value.toString().split('.')[0].length >= minDigits
     : true;
+
   if (!validMinDigits) {
     errorDetails.push(`Minimum value of "${key}" is ${minDigits} digits`);
   }
@@ -113,6 +116,15 @@ const getOptions = () =>
   });
 
 const getTypeOptions = () => ({ isDirectValueSet: false });
+
+const parseNumericType = value => {
+  if (isString(value)) {
+    const parsed = isStringFloat(value) ? parseFloat(value) : parseInt(value);
+    return isNaN(parsed) ? null : parsed;
+  }
+
+  return isNumber(value) ? value : null;
+};
 
 module.exports = {
   getTypeOptions,
