@@ -2,7 +2,7 @@
 
 const { isNil } = require('lodash');
 const { combineDefaultOptions } = require('./utils');
-const { isInt, isFunction, isNumber } = require('../types/detector');
+const { isInt, isFunction, isNumber, isString } = require('../types/detector');
 
 const parseValue = value => {
   if (isInt(value)) return [false, value];
@@ -70,10 +70,10 @@ const validate = (
     );
   }
 
-  if (min) min = parseInt(min);
-  if (max) max = parseInt(max);
-  if (minDigits) minDigits = parseInt(minDigits);
-  if (maxDigits) maxDigits = parseInt(maxDigits);
+  if (min) min = isString(min) ? parseInt(min) : min;
+  if (max) max = isString(max) ? parseInt(max) : max;
+  if (minDigits) { minDigits = isString(minDigits) ? parseInt(minDigits) : minDigits; }
+  if (maxDigits) { maxDigits = isString(maxDigits) ? parseInt(maxDigits) : maxDigits; }
 
   const validMin = min ? value >= min : true;
   if (!validMin) errorDetails.push(`Minimum value of "${key}" is ${min}`);
