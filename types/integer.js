@@ -72,8 +72,12 @@ const validate = (
 
   if (min) min = isString(min) ? parseInt(min) : min;
   if (max) max = isString(max) ? parseInt(max) : max;
-  if (minDigits) { minDigits = isString(minDigits) ? parseInt(minDigits) : minDigits; }
-  if (maxDigits) { maxDigits = isString(maxDigits) ? parseInt(maxDigits) : maxDigits; }
+  if (minDigits) {
+    minDigits = isString(minDigits) ? parseInt(minDigits) : minDigits;
+  }
+  if (maxDigits) {
+    maxDigits = isString(maxDigits) ? parseInt(maxDigits) : maxDigits;
+  }
 
   const validMin = min ? value >= min : true;
   if (!validMin) errorDetails.push(`Minimum value of "${key}" is ${min}`);
@@ -81,12 +85,16 @@ const validate = (
   const validMax = max ? value <= max : true;
   if (!validMax) errorDetails.push(`Maximum value of "${key}" is ${max}`);
 
-  const validMinDigits = minDigits ? value.toString().length >= minDigits : true;
+  const validMinDigits = minDigits
+    ? value.toString().split('.')[0].length >= minDigits
+    : true;
   if (!validMinDigits) {
     errorDetails.push(`Minimum value of "${key}" is ${minDigits} digits`);
   }
 
-  const validMaxDigits = maxDigits ? value.toString().length <= maxDigits : true;
+  const validMaxDigits = maxDigits
+    ? value.toString().split('.')[0].length <= maxDigits
+    : true;
   if (!validMaxDigits) {
     errorDetails.push(`Maximum value of "${key}" is ${maxDigits} digits`);
   }
