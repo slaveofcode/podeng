@@ -6,6 +6,7 @@ const floatType = require('./float');
 const numberType = require('./number');
 const optionsType = require('./options');
 const conditionsType = require('./conditions');
+const booleanType = require('./boolean');
 
 const makeHandler = (parserMaker, validate, getOptions, getTypeOptions) => {
   const handler = (...paramsOrOptions) => {
@@ -98,5 +99,11 @@ module.exports = {
     conditionsType.validate,
     conditionsType.getOptions,
     conditionsType.getTypeOptions
+  ),
+  bool: makeHandler(
+    booleanType.parserMaker,
+    booleanType.validate,
+    booleanType.getOptions,
+    booleanType.getTypeOptions
   )
 };
