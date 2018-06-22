@@ -40,9 +40,7 @@ const evaluatesCondition = ({
 }) => {
   const result = resolverEvaluator(resolvers, value);
   const resolvedValue = isBoolean(result)
-    ? result
-      ? positiveValue
-      : negativeValue
+    ? result ? positiveValue : negativeValue
     : negativeValue;
   return isFunction(resolvedValue) ? resolvedValue(value) : resolvedValue;
 };
@@ -84,10 +82,7 @@ const parserMaker = (...params) => {
 
 const validate = (key, value, paramsOrOptions) => {};
 
-const getOptions = () =>
-  combineDefaultOptions({
-    list: null
-  });
+const getOptions = () => combineDefaultOptions();
 
 const getTypeOptions = () => ({ isDirectValueSet: true });
 
