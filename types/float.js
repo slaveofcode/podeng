@@ -90,6 +90,7 @@ const validate = (
   const validMinDigits = minDigits
     ? value.toString().split('.')[0].length >= minDigits
     : true;
+
   if (!validMinDigits) {
     errorDetails.push(`Minimum value of "${key}" is ${minDigits} digits`);
   }
