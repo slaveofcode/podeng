@@ -4,6 +4,7 @@ const { isNil } = require('lodash');
 const { combineDefaultOptions } = require('./utils');
 const {
   isFloat,
+  isString,
   isStringFloat,
   isFunction,
   isNumber
@@ -11,7 +12,7 @@ const {
 
 const parseValue = value => {
   if (isFloat(value)) return [false, value];
-  const parsedValue = parseInt(value);
+  const parsedValue = parseFloat(value);
   const invalid = isNaN(parsedValue) && !isFloat(parsedValue);
   return [invalid, parsedValue];
 };
@@ -75,24 +76,19 @@ const validate = (
     );
   }
 
-  if (min) min = isStringFloat(min) ? parseFloat(min) : parseInt(min);
-  if (max) max = isStringFloat(max) ? parseFloat(max) : parseInt(max);
-  if (minDigits) {
-    minDigits = isStringFloat(minDigits)
-      ? parseFloat(minDigits)
-      : parseInt(minDigits);
-  }
-  if (maxDigits) {
-    maxDigits = isStringFloat(maxDigits)
-      ? parseFloat(maxDigits)
-      : parseInt(maxDigits);
-  }
+  if (min) min = parseNumericType(min);
+  if (max) max = parseNumericType(max);
+  if (minDigits) minDigits = parseNumericType(minDigits);
+  if (maxDigits) parseNumericType(maxDigits);
 
   const validMin = min ? value >= min : true;
   if (!validMin) errorDetails.push(`Minimum value of "${key}" is ${min}`);
 
   const validMax = max ? value <= max : true;
-  if (!validMax) errorDetails.push(`Maximum value of "${key}" is ${max}`);
+  if (!validMax) {
+    console.log('error max: ', value, ' <> ', max);
+    errorDetails.push(`Maximum value of "${key}" is ${max}`);
+  }
 
   const validMinDigits = minDigits
     ? value.toString().split('.')[0].length >= minDigits
@@ -122,6 +118,15 @@ const getOptions = () =>
   });
 
 const getTypeOptions = () => ({ isDirectValueSet: false });
+
+const parseNumericType = value => {
+  if (isString(value)) {
+    const parsed = isStringFloat(value) ? parseFloat(value) : parseInt(value);
+    return isNaN(parsed) ? null : parsed;
+  }
+
+  return isNumber(value) ? value : null;
+};
 
 module.exports = {
   getTypeOptions,
