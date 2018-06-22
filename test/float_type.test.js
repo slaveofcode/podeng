@@ -58,142 +58,144 @@ test('Validate value on wrong type passed', () => {
   expect(Obj5({ number: '100.04' })).toEqual({ number: 100.04 })
 })
 
-// test('Object array with integer options', () => {
-//   const ObjInteger = blueprint.object({
-//     value1: types.integer,
-//     value2: types.integer({ min: 200 }),
-//   })
+test('Object array with float options', () => {
+  const Obj = blueprint.object({
+    value1: types.float,
+    value2: types.float({ min: 10.18 }),
+  })
 
-//   const Collections = blueprint.array(ObjInteger)
+  const Collections = blueprint.array(Obj)
 
-//   expect(
-//     Collections([
-//       { value1: 123, value2: 123 },
-//       { value1: 456, value2: 456 },
-//       { value1: '789.12', value2: '789' },
-//     ])
-//   ).toEqual([
-//     {
-//       value1: 123,
-//       value2: null,
-//     },
-//     { value1: 456, value2: 456 },
-//     { value1: 789, value2: 789 },
-//   ])
-// })
+  expect(
+    Collections([
+      { value1: 33.2, value2: '33' },
+      { value1: '10.19', value2: 10.19 },
+      { value1: 11, value2: 5 },
+      { value1: '4.12', value2: '8.18' },
+    ])
+  ).toEqual([
+    {
+      value1: 33.2,
+      value2: 33,
+    },
+    { value1: 10.19, value2: 10.19 },
+    { value1: 11, value2: null },
+    { value1: 4.12, value2: null },
+  ])
+})
 
-// test('Object include integer with validation', () => {
-//   const ObjInteger1 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     { throwOnError: true }
-//   )
+test('Object include float with validation', () => {
+  const Obj1 = blueprint.object(
+    {
+      value: types.float,
+    },
+    { throwOnError: true }
+  )
 
-//   const ObjInteger2 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     { throwOnError: new TypeError('The Value Error') }
-//   )
+  const Obj2 = blueprint.object(
+    {
+      value: types.float,
+    },
+    { throwOnError: new TypeError('The Value Error') }
+  )
 
-//   const ObjInteger3 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     { onError: TypeError('The Invalid onError value') }
-//   )
+  const Obj3 = blueprint.object(
+    {
+      value: types.float,
+    },
+    { onError: TypeError('The Invalid onError value') }
+  )
 
-//   const ObjInteger4 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     {
-//       onError: {
-//         onKey: (key, err) => {
-//           throw new TypeError('Error coming from onKey')
-//         },
-//       },
-//     }
-//   )
+  const Obj4 = blueprint.object(
+    {
+      value: types.float,
+    },
+    {
+      onError: {
+        onKey: (key, err) => {
+          throw new TypeError('Error coming from onKey')
+        },
+      },
+    }
+  )
 
-//   const ObjInteger5 = blueprint.object(
-//     {
-//       value: types.integer,
-//     },
-//     {
-//       onError: {
-//         onAll: errors => {
-//           throw new TypeError('Error coming from onAll')
-//         },
-//       },
-//     }
-//   )
+  const Obj5 = blueprint.object(
+    {
+      value: types.float,
+    },
+    {
+      onError: {
+        onAll: errors => {
+          throw new TypeError('Error coming from onAll')
+        },
+      },
+    }
+  )
 
-//   const ObjInteger6 = blueprint.object({
-//     someKey: types.integer({ min: 'abc' }),
-//   })
-//   const ObjInteger7 = blueprint.object({
-//     someKey: types.integer({ max: 'abc' }),
-//   })
-//   const ObjInteger8 = blueprint.object({
-//     someKey: types.integer({ minDigits: 'abc' }),
-//   })
-//   const ObjInteger9 = blueprint.object({
-//     someKey: types.integer({ maxDigits: 'abc' }),
-//   })
+  const Obj6 = blueprint.object({
+    someKey: types.float({ min: 'abc' }),
+  })
+  const Obj7 = blueprint.object({
+    someKey: types.float({ max: 'abc' }),
+  })
+  const Obj8 = blueprint.object({
+    someKey: types.float({ minDigits: 'abc' }),
+  })
+  const Obj9 = blueprint.object({
+    someKey: types.float({ maxDigits: 'abc' }),
+  })
 
-//   const willThrow = obj => {
-//     return () => {
-//       obj.call(null, {
-//         value: function() {},
-//       })
-//     }
-//   }
+  const willThrow = obj => {
+    return () => {
+      obj.call(null, {
+        value: function() {},
+      })
+    }
+  }
 
-//   expect(willThrow(ObjInteger1)).toThrow(PodengError)
-//   expect(willThrow(ObjInteger2)).toThrow(TypeError)
-//   expect(willThrow(ObjInteger3)).not.toThrow()
-//   expect(willThrow(ObjInteger4)).toThrow(TypeError('Error coming from onKey'))
-//   expect(willThrow(ObjInteger5)).toThrow(TypeError('Error coming from onAll'))
-//   expect(() => ObjInteger6({ someKey: '123' })).toThrow(
-//     TypeError(
-//       'Integer: Invalid "min" option value for someKey, it should be in numeric type!'
-//     )
-//   )
-//   expect(() => ObjInteger7({ someKey: '123' })).toThrow(
-//     TypeError(
-//       'Integer: Invalid "max" option value for someKey, it should be in numeric type!'
-//     )
-//   )
-//   expect(() => ObjInteger8({ someKey: '123' })).toThrow(
-//     TypeError(
-//       'Integer: Invalid "minDigits" option value for someKey, it should be in numeric type!'
-//     )
-//   )
-//   expect(() => ObjInteger9({ someKey: '123' })).toThrow(
-//     TypeError(
-//       'Integer: Invalid "maxDigits" option value for someKey, it should be in numeric type!'
-//     )
-//   )
-// })
+  expect(willThrow(Obj1)).toThrow(PodengError)
+  expect(willThrow(Obj2)).toThrow(TypeError)
+  expect(willThrow(Obj3)).not.toThrow()
+  expect(willThrow(Obj4)).toThrow(TypeError('Error coming from onKey'))
+  expect(willThrow(Obj5)).toThrow(TypeError('Error coming from onAll'))
+  expect(() => Obj6({ someKey: '123' })).toThrow(
+    TypeError(
+      'Float: Invalid "min" option value for someKey, it should be in numeric type!'
+    )
+  )
+  expect(() => Obj7({ someKey: '123' })).toThrow(
+    TypeError(
+      'Float: Invalid "max" option value for someKey, it should be in numeric type!'
+    )
+  )
+  expect(() => Obj8({ someKey: '123' })).toThrow(
+    TypeError(
+      'Float: Invalid "minDigits" option value for someKey, it should be in numeric type!'
+    )
+  )
+  expect(() => Obj9({ someKey: '123' })).toThrow(
+    TypeError(
+      'Float: Invalid "maxDigits" option value for someKey, it should be in numeric type!'
+    )
+  )
+})
 
-// test('Will validate using custom value', () => {
-//   const Obj = blueprint.object({
-//     value: types.integer({
-//       validate: val => val > 100,
-//     }),
-//   })
+test('Will validate using custom value', () => {
+  const Obj = blueprint.object({
+    value: types.float({
+      validate: val => val > 100,
+    }),
+  })
 
-//   const Obj2 = blueprint.object({
-//     value: types.integer({
-//       validate: val => val !== 1818,
-//       default: () => 9999,
-//     }),
-//   })
+  const Obj2 = blueprint.object({
+    value: types.float({
+      validate: val => val !== 1818,
+      default: () => 9999,
+    }),
+  })
 
-//   expect(Obj({ value: '50' })).toEqual({ value: null })
-//   expect(Obj({ value: '110' })).toEqual({ value: 110 })
-//   expect(Obj2({ value: '123' })).toEqual({ value: 123 })
-//   expect(Obj2({ value: 1818 })).toEqual({ value: 9999 })
-// })
+  expect(Obj({ value: '80.23' })).toEqual({ value: null })
+  expect(Obj({ value: '220' })).toEqual({ value: 220 })
+  expect(Obj2({ value: '123' })).toEqual({ value: 123 })
+  expect(Obj2({ value: 1818 })).toEqual({ value: 9999 })
+})
