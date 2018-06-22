@@ -47,7 +47,7 @@ const validate = (
   options = { min: null, max: null, minDigits: null, maxDigits: null }
 ) => {
   const errorDetails = [];
-  const { min, max, minDigits, maxDigits } = options;
+  let { min, max, minDigits, maxDigits } = options;
 
   if (min && !isNumber(min)) {
     throw new TypeError(
@@ -69,6 +69,11 @@ const validate = (
       `Integer: Invalid "maxDigits" option value for ${key}, it should be in numeric type!`
     );
   }
+
+  if (min) min = parseInt(min);
+  if (max) max = parseInt(max);
+  if (minDigits) minDigits = parseInt(minDigits);
+  if (maxDigits) maxDigits = parseInt(maxDigits);
 
   const validMin = min ? value >= min : true;
   if (!validMin) errorDetails.push(`Minimum value of ${key} is ${min}`);
