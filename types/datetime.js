@@ -1,7 +1,7 @@
 'use strict';
 
 const moment = require('moment');
-const { isNil, difference, keys } = require('lodash');
+const { isNil } = require('lodash');
 const { combineDefaultOptions, fetchProvidedOptions } = require('./utils');
 const { isArray, isObject, isDate, isString } = require('./detector');
 
