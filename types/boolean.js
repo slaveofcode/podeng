@@ -74,8 +74,8 @@ const isCaseSensitiveListing = params => {
 };
 
 const isNotNil = params => {
-  const trueExceptNil = checkObjectPropertyExist(params, 'trueExceptNil');
-  return trueExceptNil === null ? getOptions().trueExceptNil : trueExceptNil;
+  const normalizeNil = checkObjectPropertyExist(params, 'normalizeNil');
+  return normalizeNil === null ? getOptions().normalizeNil : normalizeNil;
 };
 
 const evaluatesCondition = (value, validList, invalidList, caseSensitive) => {
@@ -99,7 +99,7 @@ const evaluatesCondition = (value, validList, invalidList, caseSensitive) => {
     return !invalidList.includes(value);
   }
 
-  return false;
+  return null;
 };
 
 const parserMaker = (...params) => {
@@ -108,17 +108,17 @@ const parserMaker = (...params) => {
   }
 
   return (key, value) => {
-    let parsedVal = false;
+    let parsedVal = null;
 
     const validList = extractValidList(params);
     const invalidList = extractInvalidList(params);
     const isCaseSensitive = isCaseSensitiveListing(params);
-    const trueExceptNil = isNotNil(params);
+    const normalizeNil = isNotNil(params);
 
     if (
       (!validList || validList.length === 0) &&
       (!invalidList || invalidList.length === 0) &&
-      trueExceptNil
+      normalizeNil
     ) {
       return [isNil(value), !isNil(value)];
     }
@@ -129,6 +129,10 @@ const parserMaker = (...params) => {
       invalidList,
       isCaseSensitive
     );
+
+    if (parsedVal === null && normalizeNil) {
+      parsedVal = !isNil(value);
+    }
 
     return [parsedVal === null, parsedVal];
   };
@@ -162,7 +166,7 @@ const validate = (key, value, paramsOrOptions) => {
   if (
     (!validList || validList.length === 0) &&
     (!invalidList || invalidList.length === 0) &&
-    providedOptions.trueExceptNil
+    providedOptions.normalizeNil
   ) {
     valid = valid && !isNil(value);
 
@@ -187,7 +191,7 @@ const getOptions = () =>
     validList: null,
     invalidList: null,
     caseSensitive: true,
-    trueExceptNil: false // doesn't effect if has validList and/or invalidList setup before
+    normalizeNil: false // doesn't effect if has validList and/or invalidList setup before
   });
 
 const getTypeOptions = () => ({ isDirectValueSet: true });

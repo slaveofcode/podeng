@@ -21,8 +21,8 @@ test('Should be able to use boolean type', () => {
 
   const Obj3 = blueprint.object({
     val1: types.bool,
-    val2: types.bool(['Yes', 'Yeah'], { trueExceptNil: true }),
-    val3: types.bool({ trueExceptNil: true }),
+    val2: types.bool(['Yes', 'Yeah'], { normalizeNil: true }),
+    val3: types.bool({ normalizeNil: true }),
   })
 
   const throwError = () => {
@@ -47,7 +47,7 @@ test('Should be able to use boolean type', () => {
   })
 
   expect(Obj3({ val1: 'not nil', val2: 'Yes', val3: 'not nil' })).toEqual({
-    val1: false,
+    val1: null,
     val2: true,
     val3: true,
   })
