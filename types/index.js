@@ -9,6 +9,7 @@ const numberType = require('./number');
 const optionsType = require('./options');
 const conditionsType = require('./conditions');
 const booleanType = require('./boolean');
+const transformType = require('./transform');
 
 const makeHandler = ({ parserMaker, validate, getOptions, getTypeOptions }) => {
   const handler = (...paramsOrOptions) => {
@@ -74,5 +75,6 @@ module.exports = {
   number: makeHandler(numberType),
   options: makeHandler(optionsType),
   conditions: makeHandler(conditionsType),
-  bool: makeHandler(booleanType)
+  bool: makeHandler(booleanType),
+  transform: makeHandler(transformType)
 };
