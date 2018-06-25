@@ -2,7 +2,7 @@
 
 const { includes, keys, intersection, forEach } = require('lodash');
 const { cls: BlueprintClass } = require('../blueprint/instance');
-const { isFunction, isObject } = require('../types/detector');
+const { isFunction, isObject } = require('./detector');
 
 const DEFAULT_OPTIONS = {
   hideOnFail: false,

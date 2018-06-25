@@ -2,7 +2,7 @@
 
 const { isNil } = require('lodash');
 const { combineDefaultOptions } = require('./utils');
-const { isInt, isFunction, isNumber, isString } = require('../types/detector');
+const { isInt, isFunction, isNumber, isString } = require('./detector');
 
 const parseValue = value => {
   if (isInt(value)) return [false, value];

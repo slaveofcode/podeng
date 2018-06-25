@@ -8,7 +8,7 @@ const {
   isStringFloat,
   isFunction,
   isNumber
-} = require('../types/detector');
+} = require('./detector');
 
 const parseValue = value => {
   if (isFloat(value)) return [false, value];

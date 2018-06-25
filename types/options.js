@@ -10,7 +10,7 @@ const {
   isDate,
   isObject,
   isFunction
-} = require('../types/detector');
+} = require('./detector');
 const { combineDefaultOptions, isBlueprintObject } = require('./utils');
 
 const parseValue = (listOfOptions, value) => {
