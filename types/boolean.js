@@ -1,10 +1,16 @@
 'use strict';
 
+const { isNil, difference } = require('lodash');
 const { combineDefaultOptions } = require('./utils');
 const { isArray, isObject, isBoolean, isString } = require('./detector');
 
-const isValidObjectOptions = arg =>
-  isObject(arg) && (arg.validList || arg.invalidList);
+const isValidObjectOptions = arg => {
+  const options = Object.keys(getOptions());
+  const hasOptions = args =>
+    difference(options, Object.keys(args)).length < options.length;
+  return isObject(arg) && hasOptions(arg);
+};
+
 const isValidArrayOptions = arg => isArray(arg) && arg.length > 0;
 
 const isParamsValid = params => {
@@ -13,12 +19,11 @@ const isParamsValid = params => {
       const objArg = params[0];
       return isValidArrayOptions(objArg) || isValidObjectOptions(objArg);
     } else if (params.length === 2) {
-      return (
-        isArray(params[0]) &&
-        isArray(params[1]) &&
-        params[0].length > 0 &&
-        params[1].length > 0
-      );
+      if (isArray(params[0]) && isArray(params[1])) {
+        return params[0].length > 0 && params[1].length > 0;
+      } else if (isArray(params[0]) && isObject(params[1])) {
+        return params[0].length > 0;
+      }
     } else {
       return false;
     }
@@ -53,15 +58,24 @@ const extractInvalidList = params => {
       : [];
 };
 
-const isCaseSensitiveListing = params => {
-  if (
-    params.length === 1 &&
-    isObject(params[0]) &&
-    params[0].hasOwnProperty('caseSensitive')
-  ) {
-    return params[0].caseSensitive;
+const checkObjectPropertyExist = (params, propertyName) => {
+  // Repeat over the length of params
+  for (let i = 0; i < params.length; i++) {
+    if (isObject(params[i]) && params[i].hasOwnProperty(propertyName)) {
+      return params[i][propertyName];
+    }
   }
-  return getOptions().caseSensitive;
+  return null;
+};
+
+const isCaseSensitiveListing = params => {
+  const caseSensitive = checkObjectPropertyExist(params, 'caseSensitive');
+  return caseSensitive === null ? getOptions().caseSensitive : caseSensitive;
+};
+
+const isNotNil = params => {
+  const trueExceptNil = checkObjectPropertyExist(params, 'trueExceptNil');
+  return trueExceptNil === null ? getOptions().trueExceptNil : trueExceptNil;
 };
 
 const evaluatesCondition = (value, validList, invalidList, caseSensitive) => {
@@ -97,6 +111,15 @@ const parserMaker = (...params) => {
     const validList = extractValidList(params);
     const invalidList = extractInvalidList(params);
     const isCaseSensitive = isCaseSensitiveListing(params);
+    const trueExceptNil = isNotNil(params);
+
+    if (
+      (!validList || validList.length === 0) &&
+      (!invalidList || invalidList.length === 0) &&
+      trueExceptNil
+    ) {
+      return [isNil(value), !isNil(value)];
+    }
 
     parsedVal = evaluatesCondition(
       value,
@@ -115,7 +138,8 @@ const getOptions = () =>
   combineDefaultOptions({
     validList: null,
     invalidList: null,
-    caseSensitive: true
+    caseSensitive: true,
+    trueExceptNil: false // doesn't effect if has validList and/or invalidList setup before
   });
 
 const getTypeOptions = () => ({ isDirectValueSet: true });
