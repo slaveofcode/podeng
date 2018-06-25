@@ -1,8 +1,8 @@
 'use strict';
 
-const { includes, keys } = require('lodash');
+const { includes, keys, intersection, forEach } = require('lodash');
 const { cls: BlueprintClass } = require('../blueprint/instance');
-const { isFunction } = require('../types/detector');
+const { isFunction, isObject } = require('../types/detector');
 
 const DEFAULT_OPTIONS = {
   hideOnFail: false,
@@ -30,7 +30,26 @@ const isBlueprintObject = obj => {
   return isValidFunction ? obj.getInstance() instanceof BlueprintClass : false;
 };
 
+const fetchProvidedOptions = (options, params) => {
+  const defaultOptionList = keys(options);
+  const objOptions = {};
+
+  for (let i = 0; i < params.length; i++) {
+    if (isObject(params[i])) {
+      const givenOpts = intersection(keys(params[i]), defaultOptionList);
+      if (givenOpts.length > 0) {
+        forEach(givenOpts, key => {
+          objOptions[key] = params[i][key];
+        });
+      }
+    }
+  }
+
+  return objOptions;
+};
+
 module.exports = {
   combineDefaultOptions,
-  isBlueprintObject
+  isBlueprintObject,
+  fetchProvidedOptions
 };
