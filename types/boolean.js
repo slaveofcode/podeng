@@ -83,16 +83,18 @@ const evaluatesCondition = (value, validList, invalidList, caseSensitive) => {
 
   if (validList.length > 0) {
     if (!caseSensitive) {
-      validList = validList.map(
+      const validListLowerCased = validList.map(
         item => (isString(item) ? item.toLowerCase() : item)
       );
+      validList = [...validList, ...validListLowerCased];
     }
     return validList.includes(value);
   } else if (invalidList.length > 0) {
     if (!caseSensitive) {
-      invalidList = invalidList.map(
+      const invalidListLowerCased = invalidList.map(
         item => (isString(item) ? item.toLowerCase() : item)
       );
+      invalidList = [...invalidList, ...invalidListLowerCased];
     }
     return !invalidList.includes(value);
   }
