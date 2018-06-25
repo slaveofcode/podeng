@@ -34,7 +34,7 @@ const createHandler = (schema, options, isArrayType = false) => {
  * @param {Object} obj
  */
 const freezeObject = obj => {
-  keys(obj).forEach(name => {
+  forEach(keys(obj), name => {
     const prop = obj[name];
     if (typeof prop === 'object' && prop !== null) freezeObject(prop);
   });

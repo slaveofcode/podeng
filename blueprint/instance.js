@@ -134,7 +134,7 @@ const normalizeValue = function (valuesToNormalize, onValidation = false) {
 
           if (!valid) {
             fail = true;
-            errorDetails.forEach(err => errorList.push(err));
+            forEach(errorDetails, err => errorList.push(err));
           }
         }
 
@@ -291,7 +291,7 @@ const deserializeValue = function (valuesToDeserialize, onValidation = false) {
 
         if (!valid) {
           fail = true;
-          errorDetails.forEach(err => errorList.push(err));
+          forEach(errorDetails, err => errorList.push(err));
         }
       }
 
