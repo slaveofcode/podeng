@@ -42,6 +42,6 @@
     "jest": "^22.4.3"
   },
   "dependencies": {
-    "moment": "^2.22.1"
+    "moment": "^2.22.2"
   }
 }
