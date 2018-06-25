@@ -40,5 +40,5 @@ test('Should be able to use boolean type', () => {
     val2: true,
   })
 
-  //   expect(throwError).toThrow(TypeError('Invalid setup for "bool" type'))
+  expect(throwError).toThrow(TypeError('Invalid setup for "bool" type'))
 })
