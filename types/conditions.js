@@ -80,7 +80,11 @@ const parserMaker = (...params) => {
   };
 };
 
-const validate = (key, value, paramsOrOptions) => {};
+const validate = (key, value, paramsOrOptions) => {
+  const errorDetails = [];
+  const valid = true;
+  return [errorDetails, valid];
+};
 
 const getOptions = () => combineDefaultOptions();
 
