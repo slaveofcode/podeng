@@ -106,7 +106,7 @@ const parserMaker = (...params) => {
   }
 
   return (key, value) => {
-    let parsedVal = null;
+    let parsedVal = false;
 
     const validList = extractValidList(params);
     const invalidList = extractInvalidList(params);
