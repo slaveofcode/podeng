@@ -19,7 +19,6 @@ const makeHandler = ({ parserMaker, validate, getOptions, getTypeOptions }) => {
     const additionalOptions = directValueSet
       ? fetchProvidedOptions(getOptions(), paramsOrOptions)
       : paramsOrOptions[0];
-    console.log('Additional opts: ', additionalOptions, paramsOrOptions);
     const options = Object.assign(getOptions(), additionalOptions);
 
     const objHandler = () => {};
