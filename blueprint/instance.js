@@ -122,13 +122,16 @@ const normalizeValue = function (valuesToNormalize, onValidation = false) {
 
         const handler = initiateTypeHandler(typeHandler);
 
-        let [fail, normalizedValue] = handler.parse(key, objValue[key]);
+        let [fail, normalizedValue] = handler.parse(
+          key,
+          objValue ? objValue[key] : undefined
+        );
 
         // only execute if for validation purpose
         if (config.doValidation) {
           const [errorDetails, valid] = handler.validate(
             key,
-            objValue[key],
+            objValue ? objValue[key] : undefined,
             handler.getOptions()
           );
 
@@ -279,13 +282,13 @@ const deserializeValue = function (valuesToDeserialize, onValidation = false) {
 
       let [fail, normalizedValue] = handler.parse(
         deserializeFrom,
-        objValue[deserializeFrom]
+        objValue ? objValue[deserializeFrom] : undefined
       );
 
       if (config.doValidation) {
         const [errorDetails, valid] = handler.validate(
           deserializeFrom,
-          objValue[deserializeFrom],
+          objValue ? objValue[deserializeFrom] : undefined,
           handler.getOptions()
         );
 
