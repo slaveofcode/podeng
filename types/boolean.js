@@ -1,13 +1,13 @@
 'use strict';
 
-const { isNil, difference } = require('lodash');
+const { isNil, difference, keys } = require('lodash');
 const { combineDefaultOptions } = require('./utils');
 const { isArray, isObject, isBoolean, isString } = require('./detector');
 
 const isValidObjectOptions = arg => {
-  const options = Object.keys(getOptions());
+  const options = keys(getOptions());
   const hasOptions = args =>
-    difference(options, Object.keys(args)).length < options.length;
+    difference(options, keys(args)).length < options.length;
   return isObject(arg) && hasOptions(arg);
 };
 
@@ -132,7 +132,11 @@ const parserMaker = (...params) => {
   };
 };
 
-const validate = (key, value, paramsOrOptions) => {};
+const validate = (key, value, paramsOrOptions) => {
+  const errorDetails = [];
+  const valid = true;
+  return [errorDetails, valid];
+};
 
 const getOptions = () =>
   combineDefaultOptions({

@@ -1,4 +1,6 @@
 'use strict';
+
+const { fetchProvidedOptions } = require('./utils');
 const { isString, isNumber, isBoolean } = require('./detector');
 const stringType = require('./string');
 const integerType = require('./integer');
@@ -8,13 +10,16 @@ const optionsType = require('./options');
 const conditionsType = require('./conditions');
 const booleanType = require('./boolean');
 
-const makeHandler = (parserMaker, validate, getOptions, getTypeOptions) => {
+const makeHandler = ({ parserMaker, validate, getOptions, getTypeOptions }) => {
   const handler = (...paramsOrOptions) => {
     const typeOptions = getTypeOptions();
 
     const directValueSet = typeOptions.isDirectValueSet;
 
-    const additionalOptions = directValueSet ? {} : paramsOrOptions[0];
+    const additionalOptions = directValueSet
+      ? fetchProvidedOptions(getOptions(), paramsOrOptions)
+      : paramsOrOptions[0];
+    console.log('Additional opts: ', additionalOptions, paramsOrOptions);
     const options = Object.assign(getOptions(), additionalOptions);
 
     const objHandler = () => {};
@@ -64,46 +69,11 @@ const makeHandler = (parserMaker, validate, getOptions, getTypeOptions) => {
 };
 
 module.exports = {
-  string: makeHandler(
-    stringType.parserMaker,
-    stringType.validate,
-    stringType.getOptions,
-    stringType.getTypeOptions
-  ),
-  integer: makeHandler(
-    integerType.parserMaker,
-    integerType.validate,
-    integerType.getOptions,
-    integerType.getTypeOptions
-  ),
-  float: makeHandler(
-    floatType.parserMaker,
-    floatType.validate,
-    floatType.getOptions,
-    floatType.getTypeOptions
-  ),
-  number: makeHandler(
-    numberType.parserMaker,
-    numberType.validate,
-    numberType.getOptions,
-    numberType.getTypeOptions
-  ),
-  options: makeHandler(
-    optionsType.parserMaker,
-    optionsType.validate,
-    optionsType.getOptions,
-    optionsType.getTypeOptions
-  ),
-  conditions: makeHandler(
-    conditionsType.parserMaker,
-    conditionsType.validate,
-    conditionsType.getOptions,
-    conditionsType.getTypeOptions
-  ),
-  bool: makeHandler(
-    booleanType.parserMaker,
-    booleanType.validate,
-    booleanType.getOptions,
-    booleanType.getTypeOptions
-  )
+  string: makeHandler(stringType),
+  integer: makeHandler(integerType),
+  float: makeHandler(floatType),
+  number: makeHandler(numberType),
+  options: makeHandler(optionsType),
+  conditions: makeHandler(conditionsType),
+  bool: makeHandler(booleanType)
 };
