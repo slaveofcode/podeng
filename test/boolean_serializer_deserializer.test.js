@@ -9,7 +9,7 @@ test('Object able to serialize and deserialize', () => {
   });
 
   expect(Obj1.serialize({ good: true })).toEqual({ good_status: true });
-  expect(Obj1.deserialize({ good_status: '20' })).toEqual({ good: false });
+  expect(Obj1.deserialize({ good_status: '20' })).toEqual({ good: null });
   expect(Obj1.deserialize({ good_status: false })).toEqual({ good: false });
 });
 
@@ -36,11 +36,11 @@ test('Object able to serialize and deserialize with custom deserialize rules', (
     })
   });
 
-  expect(Obj1.serialize({ good: 'meh' })).toEqual({ good_thing: false });
+  expect(Obj1.serialize({ good: 'meh' })).toEqual({ good_thing: null });
   expect(Obj1.serialize({ good: true })).toEqual({ good_thing: true });
-  expect(Obj1.deserialize({ good_thing: 'meh' })).toEqual({ good: false });
+  expect(Obj1.deserialize({ good_thing: 'meh' })).toEqual({ good: null });
   expect(Obj1.deserialize({ from_a_good_thing: 'meh' })).toEqual({
-    good: false
+    good: null
   });
   expect(Obj1.deserialize({ from_a_good_thing: true })).toEqual({ good: true });
 
@@ -65,7 +65,7 @@ test('Object able to hide on serialize', () => {
   const Obj1 = blueprint.object({
     good: types.bool({
       serialize: { to: 'good_thing' },
-      trueExceptNil: true
+      normalizeNil: true
     }),
     best: types.bool({ serialize: { display: false } })
   });
@@ -78,6 +78,6 @@ test('Object able to hide on serialize', () => {
   });
   expect(Obj1({ good: 123, best: 'foo' })).toEqual({
     good: true,
-    best: false
+    best: null
   });
 });

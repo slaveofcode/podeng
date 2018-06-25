@@ -1,7 +1,7 @@
 'use strict';
 
 const { isNil, difference, keys } = require('lodash');
-const { combineDefaultOptions } = require('./utils');
+const { combineDefaultOptions, fetchProvidedOptions } = require('./utils');
 const { isArray, isObject, isBoolean, isString } = require('./detector');
 
 const isValidObjectOptions = arg => {
@@ -74,8 +74,8 @@ const isCaseSensitiveListing = params => {
 };
 
 const isNotNil = params => {
-  const trueExceptNil = checkObjectPropertyExist(params, 'trueExceptNil');
-  return trueExceptNil === null ? getOptions().trueExceptNil : trueExceptNil;
+  const normalizeNil = checkObjectPropertyExist(params, 'normalizeNil');
+  return normalizeNil === null ? getOptions().normalizeNil : normalizeNil;
 };
 
 const evaluatesCondition = (value, validList, invalidList, caseSensitive) => {
@@ -99,7 +99,7 @@ const evaluatesCondition = (value, validList, invalidList, caseSensitive) => {
     return !invalidList.includes(value);
   }
 
-  return false;
+  return null;
 };
 
 const parserMaker = (...params) => {
@@ -108,17 +108,17 @@ const parserMaker = (...params) => {
   }
 
   return (key, value) => {
-    let parsedVal = false;
+    let parsedVal = null;
 
     const validList = extractValidList(params);
     const invalidList = extractInvalidList(params);
     const isCaseSensitive = isCaseSensitiveListing(params);
-    const trueExceptNil = isNotNil(params);
+    const normalizeNil = isNotNil(params);
 
     if (
       (!validList || validList.length === 0) &&
       (!invalidList || invalidList.length === 0) &&
-      trueExceptNil
+      normalizeNil
     ) {
       return [isNil(value), !isNil(value)];
     }
@@ -130,13 +130,59 @@ const parserMaker = (...params) => {
       isCaseSensitive
     );
 
+    if (parsedVal === null && normalizeNil) {
+      parsedVal = !isNil(value);
+    }
+
     return [parsedVal === null, parsedVal];
   };
 };
 
 const validate = (key, value, paramsOrOptions) => {
   const errorDetails = [];
-  const valid = true;
+  let valid = true;
+
+  const providedOptions = fetchProvidedOptions(getOptions(), paramsOrOptions);
+  let validList = providedOptions.validList;
+  let invalidList = providedOptions.invalidList;
+
+  if (!providedOptions.caseSensitive) {
+    const validListLowerCased = validList && isArray(validList)
+      ? validList.map(item => (isString(item) ? item.toLowerCase() : item))
+      : [];
+    const invalidListLowerCased = invalidList && isArray(invalidList)
+      ? invalidList.map(item => (isString(item) ? item.toLowerCase() : item))
+      : [];
+
+    if (validListLowerCased.length > 0) {
+      validList = [...validList, ...validListLowerCased];
+    }
+
+    if (invalidListLowerCased.length > 0) {
+      invalidList = [...invalidList, ...invalidListLowerCased];
+    }
+  }
+
+  if (
+    (!validList || validList.length === 0) &&
+    (!invalidList || invalidList.length === 0) &&
+    providedOptions.normalizeNil
+  ) {
+    valid = valid && !isNil(value);
+
+    if (!valid) {
+      errorDetails.push(`Nil value indentified for "${key}"`);
+    }
+  }
+
+  if (validList && validList.length > 0) {
+    valid = valid && validList.includes(value);
+  } else if (invalidList && invalidList.length > 0) {
+    valid = valid && invalidList.includes(value);
+  }
+
+  if (!valid && isBoolean(value)) valid = true; // check for boolean type value
+
   return [errorDetails, valid];
 };
 
@@ -145,7 +191,7 @@ const getOptions = () =>
     validList: null,
     invalidList: null,
     caseSensitive: true,
-    trueExceptNil: false // doesn't effect if has validList and/or invalidList setup before
+    normalizeNil: false // doesn't effect if has validList and/or invalidList setup before
   });
 
 const getTypeOptions = () => ({ isDirectValueSet: true });
