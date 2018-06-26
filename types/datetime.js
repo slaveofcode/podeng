@@ -22,10 +22,9 @@ const getValidDate = (dateVal, format, useTimezone) => {
   try {
     // detect date by ISO 8601 or RFC 2822 Date time formats
     const dateParser = getDateParser(useTimezone);
-    const ignoreSuppressWarning = true;
     const date = format
-      ? dateParser(dateVal, format, ignoreSuppressWarning)
-      : dateParser(dateVal, ignoreSuppressWarning);
+      ? dateParser(dateVal, format, true)
+      : dateParser(dateVal, false);
     if (date.isValid()) return date;
   } catch (err) {
     return null;
@@ -35,7 +34,12 @@ const getValidDate = (dateVal, format, useTimezone) => {
 
 const evaluatesDate = (dateVal, format, useTimezone) => {
   if (isString(dateVal) || isDate(dateVal)) {
-    console.log(dateVal, format, useTimezone);
+    console.log(
+      dateVal,
+      format,
+      'result: ',
+      getValidDate(dateVal, format, useTimezone)
+    );
     return getValidDate(dateVal, format, useTimezone);
   }
 
@@ -59,7 +63,11 @@ const parserMaker = (...params) => {
       timeOnly
     } = fetchProvidedOptions(getOptions(), params);
 
-    parsedVal = evaluatesDate(value, parseFormat, timezoneAware);
+    // get format string from index params 0 if detected as string
+    const strFormat = !parseFormat
+      ? isString(params[0]) ? params[0] : parseFormat
+      : parseFormat;
+    parsedVal = evaluatesDate(value, strFormat, timezoneAware);
 
     console.log('parsedVal: ', parsedVal);
 

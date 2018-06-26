@@ -38,8 +38,8 @@ test('Should be able to use datetime type', () => {
   })
 
   expect(Obj({ val1: '2018-06-18', val2: '18-06-1991' })).toEqual({
-    val1: '2018-06-18',
-    val2: '2018-06-18',
+    val1: '2018-06-18T00:00:00+07:00',
+    val2: '1991-06-18T00:00:00+07:00',
   })
 
   expect(throwError).toThrow(TypeError('Invalid setup for "date" type'))
