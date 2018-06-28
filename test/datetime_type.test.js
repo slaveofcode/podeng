@@ -2,6 +2,7 @@
 
 /* eslint-disable */
 
+const moment = require('moment')
 const blueprint = require('../blueprint')
 const types = require('../types')
 
@@ -41,6 +42,16 @@ test('Should be able to use datetime type', () => {
     val1: '2018-06-18T00:00:00+07:00',
     val2: '1991-06-18T00:00:00+07:00',
   })
+
+  expect(Obj2({ val1: '18-06-1991', val2: '2018-06-18' })).toEqual({
+    val1: '1991-06-18T00:00:00+07:00',
+    val2: '18-06-2018',
+  })
+
+  const obj3Inst = Obj3({ val1: '1991-06-18', val2: '2018-06-18' })
+
+  expect(obj3Inst.val1).toEqual('1991-06-18T00:00:00Z')
+  expect(obj3Inst.val2).toBeInstanceOf(moment)
 
   expect(throwError).toThrow(TypeError('Invalid setup for "date" type'))
 })

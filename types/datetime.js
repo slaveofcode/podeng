@@ -34,12 +34,6 @@ const getValidDate = (dateVal, format, useTimezone) => {
 
 const evaluatesDate = (dateVal, format, useTimezone) => {
   if (isString(dateVal) || isDate(dateVal)) {
-    console.log(
-      dateVal,
-      format,
-      'result: ',
-      getValidDate(dateVal, format, useTimezone)
-    );
     return getValidDate(dateVal, format, useTimezone);
   }
 
@@ -68,8 +62,6 @@ const parserMaker = (...params) => {
       ? isString(params[0]) ? params[0] : parseFormat
       : parseFormat;
     parsedVal = evaluatesDate(value, strFormat, timezoneAware);
-
-    console.log('parsedVal: ', parsedVal);
 
     if (parsedVal !== null) {
       if (!asMoment) {
