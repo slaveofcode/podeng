@@ -5,6 +5,8 @@ const { isNil } = require('lodash');
 const { combineDefaultOptions, fetchProvidedOptions } = require('./utils');
 const { isArray, isObject, isDate, isString } = require('./detector');
 
+moment.suppressDeprecationWarnings = true;
+
 const isParamsValid = params => {
   if (isArray(params) && (params.length === 1 || params.length === 2)) {
     if (params.length === 2) {
@@ -22,9 +24,7 @@ const getValidDate = (dateVal, format, useTimezone) => {
   try {
     // detect date by ISO 8601 or RFC 2822 Date time formats
     const dateParser = getDateParser(useTimezone);
-    const date = format
-      ? dateParser(dateVal, format, true)
-      : dateParser(dateVal, false);
+    const date = dateParser(dateVal, !isNil(format) ? format : undefined);
     if (date.isValid()) return date;
   } catch (err) {
     return null;
