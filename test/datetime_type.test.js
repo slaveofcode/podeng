@@ -27,6 +27,11 @@ test('Should be able to use datetime type', () => {
     val2: types.datetime({ timeOnly: true }),
   })
 
+  const Obj5 = blueprint.object({
+    val1: types.datetime({ dateOnly: 'DD-MM-YYYY' }),
+    val2: types.datetime({ timeOnly: 'H:m:s' }),
+  })
+
   const throwError = () => {
     blueprint.object({
       value: types.datetime([]),
@@ -52,6 +57,16 @@ test('Should be able to use datetime type', () => {
 
   expect(obj3Inst.val1).toEqual('1991-06-18T00:00:00Z')
   expect(obj3Inst.val2).toBeInstanceOf(moment)
+
+  expect(Obj4({ val1: '1991-06-18', val2: '2018-06-18 18:18:18' })).toEqual({
+    val1: '1991-06-18',
+    val2: '18:18:18',
+  })
+
+  expect(Obj5({ val1: '1991-06-18', val2: '2018-06-18 09:30:05' })).toEqual({
+    val1: '18-06-1991',
+    val2: '9:30:5',
+  })
 
   expect(throwError).toThrow(TypeError('Invalid setup for "date" type'))
 })

@@ -47,6 +47,7 @@ const parserMaker = (...params) => {
 
   return (key, value) => {
     let parsedVal = null;
+    let dateReturnFormat;
 
     const {
       parseFormat,
@@ -57,21 +58,25 @@ const parserMaker = (...params) => {
       timeOnly
     } = fetchProvidedOptions(getOptions(), params);
 
+    dateReturnFormat = returnFormat;
+
     // get format string from index params 0 if detected as string
     const strFormat = !parseFormat
       ? isString(params[0]) ? params[0] : parseFormat
       : parseFormat;
     parsedVal = evaluatesDate(value, strFormat, timezoneAware);
 
+    if (dateOnly || timeOnly) {
+      dateReturnFormat = dateOnly
+        ? isString(dateOnly) ? dateOnly : 'YYYY-MM-DD'
+        : isString(timeOnly) ? timeOnly : 'HH:mm:ss';
+    }
+
     if (parsedVal !== null) {
       if (!asMoment) {
         parsedVal = parsedVal.format(
-          !isNil(returnFormat) ? returnFormat : undefined
+          !isNil(dateReturnFormat) ? dateReturnFormat : undefined
         );
-      }
-
-      if ((dateOnly || timeOnly) && !isString(parsedVal)) {
-        parsedVal = parsedVal.format(dateOnly ? 'YYYY-MM-DD' : 'HH:mm:ss');
       }
     }
 
