@@ -2,9 +2,11 @@
 
 /* eslint-disable */
 
-const moment = require('moment')
+const moment = require('moment-timezone')
 const blueprint = require('../blueprint')
 const types = require('../types')
+
+moment.tz.setDefault('Asia/Jakarta')
 
 test('Should be able to use datetime type', () => {
   const Obj = blueprint.object({

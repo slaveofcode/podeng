@@ -1,7 +1,10 @@
 'use strict';
 
+const moment = require('moment-timezone');
 const blueprint = require('../blueprint');
 const types = require('../types');
+
+moment.tz.setDefault('Asia/Jakarta');
 
 test('Object able to serialize and deserialize', () => {
   const Obj1 = blueprint.object({
