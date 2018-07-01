@@ -37,6 +37,7 @@ const fetchProvidedOptions = (options, params) => {
   for (let i = 0; i < params.length; i++) {
     if (isObject(params[i])) {
       const givenOpts = intersection(keys(params[i]), defaultOptionList);
+
       if (givenOpts.length > 0) {
         forEach(givenOpts, key => {
           objOptions[key] = params[i][key];
@@ -45,7 +46,7 @@ const fetchProvidedOptions = (options, params) => {
     }
   }
 
-  return objOptions;
+  return Object.assign({}, options, objOptions);
 };
 
 module.exports = {
