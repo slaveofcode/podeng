@@ -24,7 +24,13 @@ const getValidDate = (dateVal, format, useTimezone) => {
   try {
     // detect date by ISO 8601 or RFC 2822 Date time formats
     const dateParser = getDateParser(useTimezone);
-    const date = dateParser(dateVal, !isNil(format) ? format : undefined);
+    const strict = true;
+    const date = dateParser(
+      dateVal,
+      !isNil(format) ? format : undefined,
+      strict
+    );
+
     if (date.isValid()) return date;
   } catch (err) {
     return null;
@@ -38,6 +44,14 @@ const evaluatesDate = (dateVal, format, useTimezone) => {
   }
 
   return null;
+};
+
+const getDateFormat = (parseFormat, params) => {
+  return !parseFormat
+    ? isString(params[0])
+      ? params[0]
+      : parseFormat
+    : parseFormat;
 };
 
 const parserMaker = (...params) => {
@@ -61,15 +75,17 @@ const parserMaker = (...params) => {
     dateReturnFormat = returnFormat;
 
     // get format string from index params 0 if detected as string
-    const strFormat = !parseFormat
-      ? isString(params[0]) ? params[0] : parseFormat
-      : parseFormat;
+    const strFormat = getDateFormat(parseFormat, params);
     parsedVal = evaluatesDate(value, strFormat, timezoneAware);
 
     if (dateOnly || timeOnly) {
       dateReturnFormat = dateOnly
-        ? isString(dateOnly) ? dateOnly : 'YYYY-MM-DD'
-        : isString(timeOnly) ? timeOnly : 'HH:mm:ss';
+        ? isString(dateOnly)
+          ? dateOnly
+          : 'YYYY-MM-DD'
+        : isString(timeOnly)
+          ? timeOnly
+          : 'HH:mm:ss';
     }
 
     if (parsedVal !== null) {
@@ -87,6 +103,16 @@ const parserMaker = (...params) => {
 const validate = (key, value, paramsOrOptions) => {
   const errorDetails = [];
   let valid = true;
+
+  const { parseFormat, timezoneAware } = paramsOrOptions;
+
+  const strFormat = getDateFormat(parseFormat, paramsOrOptions);
+  valid = evaluatesDate(value, strFormat, timezoneAware) !== null;
+
+  if (!valid) {
+    errorDetails.push(`Unable to parse "${key}" with value: ${value}`);
+  }
+
   return [errorDetails, valid];
 };
 
