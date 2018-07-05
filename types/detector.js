@@ -34,6 +34,17 @@ const isStringFloat = num =>
   !isFloat(num) &&
   !isNaN(num) &&
   num.toString().indexOf('.') !== -1;
+const isJSONObject = obj => {
+  const isObj = isObject(obj);
+  if (!isObj) return false;
+
+  if (typeof obj.constructor !== 'function') return true;
+
+  // determine the constructor type
+  const type = Object.prototype.toString.call(obj.constructor());
+
+  return type === OBJECT_V;
+};
 
 module.exports = {
   isArray,
@@ -49,5 +60,6 @@ module.exports = {
   isSymbol,
   isInt,
   isFloat,
-  isStringFloat
+  isStringFloat,
+  isJSONObject
 };

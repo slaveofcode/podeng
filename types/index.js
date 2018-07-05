@@ -11,6 +11,7 @@ const conditionsType = require('./conditions');
 const booleanType = require('./boolean');
 const transformType = require('./transform');
 const datetimeType = require('./datetime');
+const anyType = require('./any');
 
 const makeHandler = ({ parserMaker, validate, getOptions, getTypeOptions }) => {
   const handler = (...paramsOrOptions) => {
@@ -78,5 +79,6 @@ module.exports = {
   conditions: makeHandler(conditionsType),
   bool: makeHandler(booleanType),
   transform: makeHandler(transformType),
-  datetime: makeHandler(datetimeType)
+  datetime: makeHandler(datetimeType),
+  any: makeHandler(anyType)
 };
