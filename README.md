@@ -6,6 +6,12 @@ This small library helps you to make JSON property value to follow the rules, no
 
 <img src="https://raw.github.com/slaveofcode/podeng/master/logos/logo_200.png" align="right" />
 
+## Core Concepts
+1. **Normalization**, normalize json value to follow rules
+2. **Serialization**, normalization-like but with different key name
+3. **Deserialization**, reversed-like-serialization also with different key name
+4. **Validation**, validate json value if not matched with rules
+
 ## Example Cases
 
 1. Parser-Serializer for your RESTful API
