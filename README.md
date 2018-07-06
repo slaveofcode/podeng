@@ -1,10 +1,10 @@
-<img src="https://raw.github.com/slaveofcode/podeng/master/logos/logo.png" align="right" />
-
 # PodengJS
 
 Simple JSON value normalization to make everything gone right.
 
 This small library helps you to make JSON property value to follow the rules, no matter how strange the value is, you could still normalize it into right type(s).
+
+<img src="https://raw.github.com/slaveofcode/podeng/master/logos/logo_200.png" align="right" />
 
 ## Example Cases
 
