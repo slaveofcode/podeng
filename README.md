@@ -14,3 +14,16 @@ This small library helps you to make JSON property value to follow the rules, no
 4. Minimalist JSON Schema
 5. Other...
 
+## Installation
+
+Minimal node version >= 6
+
+    >> npm i podeng
+
+    or
+
+    >> yarn add podeng
+
+## Documentation
+
+### Simple Example
