@@ -1,5 +1,7 @@
 'use strict';
 
+const { includes, keys } = require('lodash');
+
 const DEFAULT_OPTIONS = {
   frozen: true,
   giveWarning: false,
@@ -26,8 +28,25 @@ const combineExtDefaultOptions = options =>
 const combineEmbedDefaultOptions = options =>
   Object.assign({}, EMBED_OPTIONS, options);
 
+const isTypeObject = obj => {
+  const incMethod = name => {
+    return includes(keys(obj), name);
+  };
+  return (
+    incMethod('parse') &&
+    incMethod('validate') &&
+    incMethod('getSerializeName') &&
+    incMethod('getDeserializeName') &&
+    incMethod('isHideOnSerialization') &&
+    incMethod('isHideOnDeserialization') &&
+    incMethod('isHideOnFail') &&
+    incMethod('getOptions')
+  );
+};
+
 module.exports = {
   combineObjDefaultOptions,
   combineExtDefaultOptions,
-  combineEmbedDefaultOptions
+  combineEmbedDefaultOptions,
+  isTypeObject
 };

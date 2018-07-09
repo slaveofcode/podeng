@@ -1,7 +1,8 @@
 'use strict';
 
-const { isArray, isFunction, isUndefined } = require('../types/detector');
 const { includes, keys, forEach, difference, pick, omit } = require('lodash');
+const { isArray, isFunction, isUndefined } = require('../types/detector');
+const { isTypeObject } = require('./utils');
 
 const cls = function (schema, options = {}, { isArray = false }) {
   this.isArray = isArray;
@@ -126,6 +127,18 @@ const normalizeValue = function (valuesToNormalize, onValidation = false) {
           key,
           objValue ? objValue[key] : undefined
         );
+
+        while (isTypeObject(normalizedValue)) {
+          console.log('hit in ', objValue[key]);
+          const result = normalizedValue.parse(
+            key,
+            objValue ? objValue[key] : undefined
+          );
+          fail = result[0];
+          normalizedValue = result[1];
+
+          console.log(result);
+        }
 
         // only execute if for validation purpose
         if (config.doValidation) {
