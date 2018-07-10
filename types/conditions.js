@@ -1,6 +1,6 @@
 'use strict';
 
-const { reduce } = require('lodash');
+const { reduce, isNil } = require('lodash');
 const { isArray, isFunction, isBoolean, isObject } = require('./detector');
 const { combineDefaultOptions } = require('./utils');
 
@@ -8,6 +8,9 @@ const isParamsValid = params => {
   if (isArray(params) && (params.length === 1 || params.length === 3)) {
     if (params.length === 1) {
       const objArg = params[0];
+
+      if (isFunction(objArg)) return true;
+
       const validObj = isObject(objArg);
       if (!validObj) return false;
 
@@ -27,9 +30,11 @@ const resolverEvaluator = (resolvers, value) => {
       (initial, resolverFunction) => initial && resolverFunction(value),
       true
     );
-  } else if (isFunction) {
+  } else if (isFunction(resolvers)) {
     return resolvers(value);
   }
+
+  return null;
 };
 
 const evaluatesCondition = ({
@@ -38,11 +43,14 @@ const evaluatesCondition = ({
   positiveValue,
   negativeValue
 }) => {
-  const result = resolverEvaluator(resolvers, value);
-  const resolvedValue = isBoolean(result)
-    ? result ? positiveValue : negativeValue
-    : negativeValue;
-  return isFunction(resolvedValue) ? resolvedValue(value) : resolvedValue;
+  const evaluatesResult = resolverEvaluator(resolvers, value);
+  let okStatus = false;
+  if (isBoolean(evaluatesResult)) {
+    okStatus = evaluatesResult;
+  } else {
+    okStatus = !isNil(evaluatesResult);
+  }
+  return okStatus ? positiveValue : negativeValue;
 };
 
 const parserMaker = (...params) => {
@@ -52,7 +60,6 @@ const parserMaker = (...params) => {
 
   return (key, value) => {
     let parsedVal = null;
-
     if (params.length === 3) {
       const evaluator = params[0];
       const positiveValue = params[1];
