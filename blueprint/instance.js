@@ -128,16 +128,17 @@ const normalizeValue = function (valuesToNormalize, onValidation = false) {
           objValue ? objValue[key] : undefined
         );
 
+        /**
+         * Handle multilevel types normalization
+         * for example conditions type
+         */
         while (isTypeObject(normalizedValue)) {
-          console.log('hit in ', objValue[key]);
           const result = normalizedValue.parse(
             key,
             objValue ? objValue[key] : undefined
           );
           fail = result[0];
           normalizedValue = result[1];
-
-          console.log(result);
         }
 
         // only execute if for validation purpose
