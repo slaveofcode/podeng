@@ -7,5 +7,7 @@ const validator = require('./validator');
 module.exports = {
   blueprint,
   types,
-  validator
+  validator,
+  BlueprintClass: blueprint.BlueprintClass,
+  BlueprintEmbedClass: blueprint.BlueprintEmbedClass
 };

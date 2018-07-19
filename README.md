@@ -6,11 +6,11 @@ This small library helps you to make JSON property value to follow the rules, no
 
 <img src="https://raw.github.com/slaveofcode/podeng/master/logos/logo_200.png" align="right" />
 
-## Core Concepts
-1. **Normalization**, normalize json value to follow rules
+## Terms
+1. **Normalization**, convert json value to follow rules without changing any key/propery name
 2. **Serialization**, normalization-like but with different key name
-3. **Deserialization**, reversed-like-serialization also with different key name
-4. **Validation**, validate json value if not matched with rules
+3. **Deserialization**, reversed-like-serialization but with the different supplied key/property name 
+4. **Validation**, validate json value if not matched with rules(also could work with serialization-deserialization)
 
 ## Example Cases
 
@@ -76,7 +76,165 @@ yarn add podeng
     // }
 ```
 
-## Supported types and options
+## Blueprint Object Options
+
+- **frozen**: Freeze the JSON result, so it cannot be modified
+- **giveWarning**: Enable warning when parsing (normalize-serialize-deserialize) got invalid value
+- **onError**: Object to determine action when error caught on parsing, this has 2 option handler, `onKey` and `onAll`
+   - **onKey**: A function to execute while some key detected has an invalid value, this function will 2 supplied by parameter key of type and error details 
+   - **onAll**: A function to execute when all key detected has an invalid value, this function just supplied with one parameter, the error details
+- **throwOnError**: Throwing an exception while the error parse detected
+- **allowUnknownProperties**: This option will allow unknown properties on parsing
+
+> Blueprint Object Example
+
+```
+const Parser = blueprint.object(
+  {
+    key: types.bool,
+    key2: types.bool(['Yes', 'True', 'Yup'])
+  },
+  {
+    throwOnError: true,
+    giveWarning: true
+  }
+);
+
+const Parser2 = blueprint.object(
+  {
+    value: types.integer
+  },
+  { onError: TypeError('The Invalid onError value') }
+)
+
+const Parser3 = blueprint.array(
+  {
+    value: types.integer
+  },
+  {
+    onError: {
+      onKey: (key, err) => {
+        throw new TypeError('Error coming from ', key)
+      },
+    },
+  }
+)
+
+// Create array object from JSON
+const ListParser = blueprint.array({
+  name: types.string,
+  age: types.integer
+})
+
+// Create array object from existing blueprint object
+const Person = blueprint.object({
+  name: types.string
+});
+
+const People = blueprint.array(Person);
+```
+
+## Blueprint Extend
+
+Once you make an Object of blueprint, it can be extended into some new object with different types. This method helps you easier to re-use an existing object or defining several object with same basic types.
+
+> Example Of Blueprint Extend
+
+```
+const { blueprint, types, BlueprintClass } = require('podeng');
+
+const Car = blueprint.object({
+  color: types.string,
+  wheels: types.string({ normalize: ['trimmed', 'upper_first'] })
+});
+
+const Bus = blueprint.extend(Car, {
+  brand: types.string({ normalize: 'upper_first_word' }),
+  length: types.transform(val => `${val} meters`)
+});
+
+Bus({
+  color: 'Blue',
+  wheels: 'bridgestone',
+  brand: 'mercedes benz',
+  length: 20
+})
+
+//{
+//  color: 'Blue',
+//  wheels: 'Bridgestone',
+//  brand: 'Mercedes Benz',
+//  length: '20 meters'
+//}
+```
+
+Even you could attach some options like a normal blueprint object
+
+```
+const Man = blueprint.object({
+  name: types.string,
+  age: types.integer,
+  birthday: types.datetime({ dateOnly: true })
+});
+
+const Child = blueprint.extend(
+  Man,
+  {
+    toy: types.string
+  },
+  {
+    onError: new TypeError('Ooops you\'ve got an wrong value!')
+  }
+);
+```
+
+Or you could remove properties that not needed on extended object by giving them an extra argument
+
+```
+const Man = blueprint.object({
+  name: types.string,
+  age: types.integer,
+  birthday: types.datetime({ dateOnly: true })
+});
+
+const Alien = blueprint.extend(Man, {
+  planet: types.string
+}, {
+  deleteProperties: ['birthday']
+})
+
+```
+
+## Embedding Blueprint Object
+
+In Podeng attaching an existing blueprint object to property is possible, it known as embedding object. On embed object, all the rules of blueprint object will be assigned to the related property in master object.
+
+>> Example Embedded Object
+
+```
+const Obj1 = blueprint.object({
+  myValue: types.integer
+})
+
+const Obj2 = blueprint.object({
+  foo: types.string,
+  bar: Obj1
+})
+
+const Obj3 = blueprint.object({
+  foo: types.string,
+  bar: Obj1.embed({ default: 'empty value' })
+})
+
+Obj2({foo: 'bar', bar: { myValue: 'foo' }}) // { "foo": "bar", "bar": { "myValue": "foo" }}
+
+Obj3({ foo: 'something', bar: { myValue: 'interesting' }}) // { "foo": "something", "bar": { "myValue": "interesting" }}
+
+Obj3({ foo: 'something' }) // { "foo": "something", "bar": "empty value"}
+
+```
+
+## Types options
 
 > Default Options (available for all types)
 
@@ -103,6 +261,8 @@ yarn add podeng
 
 
 ## Types with Simple Example
+
+These are various types that you can use to normalize JSON values, please take a note the example just a simple schema that may not covering all of the options described above, but you can explore more deeper inspecting the test files or by opening an issue here. 
 
 ### String
 
@@ -234,3 +394,42 @@ Parser({ val1: 123, val2: "Foo", val3: null }) // { "val1": 123, "val2": "Foo", 
 Parser({ val1: "Foo", val2: "Bar" }) // { "val1": 123, "val2": "Foo", "val3": undefined }
 Parser({ val1: "Foo"}) // { "val1": 123, "val2": null, "val3": undefined }
 ```
+
+## Validator
+
+Podeng has capability to validate your json, the validation refers to your type schema and throwing exception (or not) depending on what the options you set. If you find more example to implement validation, you could refers to test files as well.
+
+### Example Validation
+
+```
+const { blueprint, types, validator } = require('podeng');
+
+const Human = blueprint.object({
+  eyeColor: types.string,
+  hairColor: types.string
+});
+
+const HumanValidator = validator(Human);
+
+HumanValidator.validate({ eyeColor: 'Blue', hairColor: () => {} }); // will throw an error
+
+const [errorStatus, errorDetails] = HumanValidator.check({
+  eyeColor: 'Blue',
+  hairColor: () => {}
+});
+
+// errorStatus: true
+// errorDetails: { hairColor: ['failed to parse "hairColor" with its type'] }
+```
+
+## License
+
+MIT License
+
+Copyright 2018 Aditya Kresna Permana
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

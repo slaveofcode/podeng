@@ -235,5 +235,7 @@ module.exports = {
   object: componentCreator(false),
   array: componentCreator(true),
   extend: extensibleComponent,
-  types
+  types,
+  BlueprintClass,
+  BlueprintEmbedClass
 };
