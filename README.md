@@ -7,7 +7,7 @@ This small library helps you to make JSON property value to follow the rules, no
 <img src="https://raw.github.com/slaveofcode/podeng/master/logos/logo_200.png" align="right" />
 
 ## Terms
-1. **Normalization**, convert json value to follow rules without changing any key/propery name
+1. **Normalization**, convert json value to follow rules without changing any key/property name
 2. **Serialization**, normalization-like but with different key name
 3. **Deserialization**, reversed-like-serialization but with the different supplied key/property name 
 4. **Validation**, validate json value if not matched with rules(also could work with serialization-deserialization)
