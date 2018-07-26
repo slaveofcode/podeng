@@ -26,10 +26,12 @@ const makeHandler = ({ parserMaker, validate, getOptions, getTypeOptions }) => {
 
     const objHandler = () => {};
 
-    objHandler.validate = validate;
-
     const parseArgs = directValueSet ? paramsOrOptions : [options];
     objHandler.parse = parserMaker.apply(null, parseArgs);
+
+    objHandler.validate = directValueSet
+      ? validate.apply(null, paramsOrOptions)
+      : validate;
 
     /**
      * Returning serialized name if set

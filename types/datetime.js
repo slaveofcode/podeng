@@ -48,9 +48,7 @@ const evaluatesDate = (dateVal, format, useTimezone) => {
 
 const getDateFormat = (parseFormat, params) => {
   return !parseFormat
-    ? isString(params[0])
-      ? params[0]
-      : parseFormat
+    ? isString(params[0]) ? params[0] : parseFormat
     : parseFormat;
 };
 
@@ -80,12 +78,8 @@ const parserMaker = (...params) => {
 
     if (dateOnly || timeOnly) {
       dateReturnFormat = dateOnly
-        ? isString(dateOnly)
-          ? dateOnly
-          : 'YYYY-MM-DD'
-        : isString(timeOnly)
-          ? timeOnly
-          : 'HH:mm:ss';
+        ? isString(dateOnly) ? dateOnly : 'YYYY-MM-DD'
+        : isString(timeOnly) ? timeOnly : 'HH:mm:ss';
     }
 
     if (parsedVal !== null) {
@@ -100,20 +94,22 @@ const parserMaker = (...params) => {
   };
 };
 
-const validate = (key, value, paramsOrOptions) => {
-  const errorDetails = [];
-  let valid = true;
+const validate = paramsOrOptions => {
+  return (key, value, paramsOrOptions) => {
+    const errorDetails = [];
+    let valid = true;
 
-  const { parseFormat, timezoneAware } = paramsOrOptions;
+    const { parseFormat, timezoneAware } = paramsOrOptions;
 
-  const strFormat = getDateFormat(parseFormat, paramsOrOptions);
-  valid = evaluatesDate(value, strFormat, timezoneAware) !== null;
+    const strFormat = getDateFormat(parseFormat, paramsOrOptions);
+    valid = evaluatesDate(value, strFormat, timezoneAware) !== null;
 
-  if (!valid) {
-    errorDetails.push(`Unable to parse "${key}" with value: ${value}`);
-  }
+    if (!valid) {
+      errorDetails.push(`Unable to parse "${key}" with value: ${value}`);
+    }
 
-  return [errorDetails, valid];
+    return [errorDetails, valid];
+  };
 };
 
 const getOptions = () =>
