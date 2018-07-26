@@ -138,52 +138,54 @@ const parserMaker = (...params) => {
   };
 };
 
-const validate = (key, value, paramsOrOptions) => {
-  const errorDetails = [];
-  let valid = true;
+const validate = paramsOrOptions => {
+  return (key, value, options) => {
+    const errorDetails = [];
+    let valid = true;
 
-  const providedOptions = fetchProvidedOptions(getOptions(), paramsOrOptions);
-  let validList = providedOptions.validList;
-  let invalidList = providedOptions.invalidList;
+    const providedOptions = fetchProvidedOptions(getOptions(), options);
+    let validList = providedOptions.validList;
+    let invalidList = providedOptions.invalidList;
 
-  if (!providedOptions.caseSensitive) {
-    const validListLowerCased = validList && isArray(validList)
-      ? validList.map(item => (isString(item) ? item.toLowerCase() : item))
-      : [];
-    const invalidListLowerCased = invalidList && isArray(invalidList)
-      ? invalidList.map(item => (isString(item) ? item.toLowerCase() : item))
-      : [];
+    if (!providedOptions.caseSensitive) {
+      const validListLowerCased = validList && isArray(validList)
+        ? validList.map(item => (isString(item) ? item.toLowerCase() : item))
+        : [];
+      const invalidListLowerCased = invalidList && isArray(invalidList)
+        ? invalidList.map(item => (isString(item) ? item.toLowerCase() : item))
+        : [];
 
-    if (validListLowerCased.length > 0) {
-      validList = [...validList, ...validListLowerCased];
+      if (validListLowerCased.length > 0) {
+        validList = [...validList, ...validListLowerCased];
+      }
+
+      if (invalidListLowerCased.length > 0) {
+        invalidList = [...invalidList, ...invalidListLowerCased];
+      }
     }
 
-    if (invalidListLowerCased.length > 0) {
-      invalidList = [...invalidList, ...invalidListLowerCased];
+    if (
+      (!validList || validList.length === 0) &&
+      (!invalidList || invalidList.length === 0) &&
+      providedOptions.normalizeNil
+    ) {
+      valid = valid && !isNil(value);
+
+      if (!valid) {
+        errorDetails.push(`Nil value indentified for "${key}"`);
+      }
     }
-  }
 
-  if (
-    (!validList || validList.length === 0) &&
-    (!invalidList || invalidList.length === 0) &&
-    providedOptions.normalizeNil
-  ) {
-    valid = valid && !isNil(value);
-
-    if (!valid) {
-      errorDetails.push(`Nil value indentified for "${key}"`);
+    if (validList && validList.length > 0) {
+      valid = valid && validList.includes(value);
+    } else if (invalidList && invalidList.length > 0) {
+      valid = valid && invalidList.includes(value);
     }
-  }
 
-  if (validList && validList.length > 0) {
-    valid = valid && validList.includes(value);
-  } else if (invalidList && invalidList.length > 0) {
-    valid = valid && invalidList.includes(value);
-  }
+    if (!valid && isBoolean(value)) valid = true; // check for boolean type value
 
-  if (!valid && isBoolean(value)) valid = true; // check for boolean type value
-
-  return [errorDetails, valid];
+    return [errorDetails, valid];
+  };
 };
 
 const getOptions = () =>

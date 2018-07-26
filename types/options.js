@@ -68,23 +68,25 @@ const parserMaker = paramsOrOptions => {
   };
 };
 
-const validate = (key, value, paramsOrOptions) => {
-  const errorDetails = [];
-  let valid = false;
+const validate = paramsOrOptions => {
+  return (key, value, options) => {
+    const errorDetails = [];
+    let valid = false;
 
-  if (isArray(paramsOrOptions)) {
-    valid = parseValue(paramsOrOptions, value);
-  } else if (paramsOrOptions.list) {
-    valid = parseValue(paramsOrOptions.list, value);
-  } else {
-    throw new TypeError(`List options of ${key} is undefined!`);
-  }
+    if (isArray(paramsOrOptions)) {
+      ;[valid] = parseValue(paramsOrOptions, value);
+    } else if (options.list) {
+      ;[valid] = parseValue(options.list, value);
+    } else {
+      throw new TypeError(`List options of ${key} is undefined!`);
+    }
 
-  if (!valid) {
-    errorDetails.push(`Value ${value} is not listed on options of ${key}`);
-  }
+    if (!valid) {
+      errorDetails.push(`Value ${value} is not listed on options of ${key}`);
+    }
 
-  return [errorDetails, valid];
+    return [errorDetails, valid];
+  };
 };
 
 const getOptions = () =>
