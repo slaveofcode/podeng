@@ -99,7 +99,7 @@ test('Able to validate using object serialize params', () => {
   const [err3, errDetails3] = validator2.check({
     number1: 10,
     number2: '11.23',
-    num3: '30'
+    num3: 'foobar'
   });
 
   expect(throwErr1).toThrow(PodengError);
@@ -107,19 +107,16 @@ test('Able to validate using object serialize params', () => {
 
   expect(err1).toBe(true);
   expect(errDetails1).toEqual({
-    num: ['failed to parse "num" with its type'],
     num2: ['Minimum value of "num2" is 5.45']
   });
 
   expect(err2).toBe(true);
   expect(errDetails2).toEqual({
-    number2: ['Minimum value of "number2" is 5.45'],
-    num3: ['failed to deserialize from "num3" to "num3" with its type']
+    number2: ['Minimum value of "number2" is 5.45']
   });
 
   expect(err3).toBe(true);
   expect(errDetails3).toEqual({
-    number1: ['failed to deserialize from "number1" to "num" with its type'],
     num3: ['failed to deserialize from "num3" to "num3" with its type']
   });
 });

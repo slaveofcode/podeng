@@ -13,9 +13,7 @@ const {
 const parseValue = value => {
   if (isFloat(value)) return [false, value];
   const parsedValue = parseFloat(value);
-  const invalid =
-    (isNaN(parsedValue) && !isFloat(parsedValue)) ||
-    (!isFloat(parsedValue) && parsedValue !== 0);
+  const invalid = isNaN(parsedValue);
   return [invalid, parsedValue];
 };
 
