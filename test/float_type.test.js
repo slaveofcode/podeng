@@ -40,7 +40,10 @@ test('Validate value on wrong type passed', () => {
   })
 
   expect(Obj({ num: {}, num2: '30.059' })).toEqual({ num2: 30.059 })
-  expect(Obj2({ num: 20 })).toEqual({ num: null })
+  expect(Obj({ num: {}, num2: '30.000' })).toEqual({ num2: 30 })
+  expect(Obj({ num: {}, num2: 30.000 })).toEqual({ num2: 30 })
+  expect(Obj({ num: {}, num2: 0 })).toEqual({ num2: 0 })
+  expect(Obj2({ num: 20 })).toEqual({ num: 20 })
   expect(Obj2({ num: 20.20 })).toEqual({ num: 20.20 })
   expect(Obj2({ num: 'invalid' })).toEqual({ num: null })
   expect(Obj3({ num: 0 })).toEqual({ num: 0 })
@@ -52,7 +55,7 @@ test('Validate value on wrong type passed', () => {
   expect(Obj4({ num: {} })).toEqual({ num: 18.3 })
   expect(Obj4({ num: 5 })).toEqual({ num: 18.3 })
   expect(Obj4({ num: 20 })).toEqual({ num: 18.3 })
-  expect(Obj5({ number: '27' })).toEqual({ number: null })
+  expect(Obj5({ number: '27' })).toEqual({ number: 27 })
   expect(Obj5({ number: '9' })).toEqual({ number: null })
   expect(Obj5({ number: '9.5' })).toEqual({ number: null })
   expect(Obj5({ number: '1000' })).toEqual({ number: null })
@@ -72,16 +75,16 @@ test('Object array with float options', () => {
       { value1: 33.2, value2: '33' },
       { value1: '10.19', value2: 10.19 },
       { value1: 11, value2: 5 },
-      { value1: '4.12', value2: '8.18' },
+      { value1: '4.12', value2: '88.18' },
     ])
   ).toEqual([
     {
       value1: 33.2,
-      value2: null,
+      value2: 33,
     },
     { value1: 10.19, value2: 10.19 },
-    { value1: null, value2: null },
-    { value1: 4.12, value2: null },
+    { value1: 11, value2: null },
+    { value1: 4.12, value2: 88.18 },
   ])
 })
 
@@ -197,6 +200,6 @@ test('Will validate using custom value', () => {
 
   expect(Obj({ value: '80.23' })).toEqual({ value: null })
   expect(Obj({ value: '220.21' })).toEqual({ value: 220.21 })
-  expect(Obj2({ value: '123' })).toEqual({ value: 9999 })
+  expect(Obj2({ value: 'abc' })).toEqual({ value: 9999 })
   expect(Obj2({ value: 1818 })).toEqual({ value: 9999 })
 })
