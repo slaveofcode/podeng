@@ -61,13 +61,13 @@ test('Create extensible blueprint array object', () => {
 
   const Animals = blueprint.array(Animal);
 
-  const throwError = () => {
+  const notThrowError = () => {
     blueprint.extend(Animals, {
       talking: types.string
     });
   };
 
-  expect(throwError).toThrowError(
+  expect(notThrowError).not.toThrowError(
     'To extend you must pass blueprint object, not blueprint array!'
   );
 });
