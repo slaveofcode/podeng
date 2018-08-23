@@ -201,12 +201,6 @@ const extensibleComponent = (
     throw new TypeError('To extend you must pass blueprint object!');
   }
 
-  if (component.getInstance().isArray) {
-    throw new TypeError(
-      'To extend you must pass blueprint object, not blueprint array!'
-    );
-  }
-
   const extOptions = combineExtDefaultOptions(extendOptions);
 
   const originalParams = component.getParams();
@@ -228,7 +222,7 @@ const extensibleComponent = (
 
   const finalParams = Object.assign({}, originalParams, params);
 
-  return componentCreator(false)(finalParams, options);
+  return componentCreator(component.getInstance().isArray)(finalParams, options);
 };
 
 module.exports = {
