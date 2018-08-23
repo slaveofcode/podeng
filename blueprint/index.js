@@ -22,7 +22,7 @@ const { isFunction, isArray } = require('../types/detector');
 const createHandler = (schema, options, isArrayType = false) => {
   const inst = new BlueprintClass(schema, options, { isArray: isArrayType });
 
-  const handlerFunc = () => {};
+  const handlerFunc = () => { };
   handlerFunc.getInstance = () => inst;
   handlerFunc.getClass = () => BlueprintClass;
 
@@ -207,11 +207,12 @@ const extensibleComponent = (
     );
   }
 
-  options = combineObjDefaultOptions(options);
   const extOptions = combineExtDefaultOptions(extendOptions);
 
   const originalParams = component.getParams();
   const originalOptions = component.getOptions();
+
+  options = combineObjDefaultOptions(Object.assign({}, originalOptions, options));
 
   const deleteProperties = (params, listPropsToDelete) => {
     forEach(listPropsToDelete, propName => {
@@ -226,9 +227,8 @@ const extensibleComponent = (
   }
 
   const finalParams = Object.assign({}, originalParams, params);
-  const finalOptions = Object.assign({}, originalOptions, options);
 
-  return componentCreator(false)(finalParams, finalOptions);
+  return componentCreator(false)(finalParams, options);
 };
 
 module.exports = {
