@@ -153,6 +153,13 @@ const Bus = blueprint.extend(Car, {
   length: types.transform(val => `${val} meters`)
 });
 
+const Buses = blueprint.array(Bus);
+
+// extend from an array object
+const FlyingBuses = blueprint.extend(Buses, {
+  wingsCount: typoes.integer
+});
+
 Bus({
   color: 'Blue',
   wheels: 'bridgestone',
@@ -166,6 +173,22 @@ Bus({
 //  brand: 'Mercedes Benz',
 //  length: '20 meters'
 //}
+
+FlyingBuses([{
+  color: 'Blue',
+  wheels: 'bridgestone',
+  brand: 'mercedes benz',
+  length: 20,
+  wingsCount: 20
+}])
+
+//[{
+//  color: 'Blue',
+//  wheels: 'Bridgestone',
+//  brand: 'Mercedes Benz',
+//  length: '20 meters'
+//  wingsCount: 20
+//}]
 ```
 
 Even you could attach some options like a normal blueprint object
