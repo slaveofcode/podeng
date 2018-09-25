@@ -1,6 +1,6 @@
 'use strict';
 
-const { cls: blueprintClass } = require('../blueprint/instance');
+const { BlueprintClass: blueprintClass } = require('../blueprint');
 const blueprint = require('../blueprint');
 const types = require('../types');
 
@@ -283,3 +283,63 @@ test('Allow unknown properties given', () => {
     ])
   ).toEqual([{ name: 'Aditya' }, { name: 'Amelia' }]);
 });
+
+test('Able to using embeded object with list', () => {
+  const Person = blueprint.object({
+    id: types.integer,
+    name: types.string,
+    phone: types.string({ serialize: { to: 'phoneNumber' } })
+  });
+
+  const People = blueprint.array(Person);
+
+  const CustomParser = blueprint.object({
+    items: People.embed({ default: [], serialize: { to: 'someItems' }, deserialize: { from: 'data' } }),
+    total: types.integer({ default: 0 })
+  });
+
+  const serializeCustomParser = () => {
+    CustomParser.serialize({
+      items: [{ id: 1, name: 'Aditya', phone: '+621345869' }],
+      total: 1
+    });
+  };
+
+  const deserializeCustomParser = () => {
+    CustomParser.deserialize({
+      data: [{ id: 1, name: 'Aditya', phoneNumber: '+621345869' }],
+      total: 1
+    });
+  };
+
+  expect(serializeCustomParser).not.toThrow();
+  expect(deserializeCustomParser).not.toThrow();
+  expect(
+    CustomParser({
+      items: [{ id: 1, name: 'Aditya', phone: '+621345869' }],
+      total: 1
+    })
+  ).toEqual({
+    items: [{ id: 1, name: 'Aditya', phone: '+621345869' }],
+    total: 1
+  });
+  expect(
+    CustomParser.serialize({
+      items: [{ id: 1, name: 'Aditya', phone: '+621345869' }],
+      total: 1
+    })
+  ).toEqual({
+    someItems: [{ id: 1, name: 'Aditya', phoneNumber: '+621345869' }],
+    total: 1
+  });
+  expect(
+    CustomParser.deserialize({
+      data: [{ id: 1, name: 'Aditya', phoneNumber: '+621345869' }],
+      total: 3
+    })
+  ).toEqual({
+    items: [{ id: 1, name: 'Aditya', phone: '+621345869' }],
+    total: 3
+  });
+})
+;

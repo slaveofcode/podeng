@@ -1,7 +1,7 @@
 'use strict';
 
 const { includes, keys, intersection, forEach } = require('lodash');
-const { cls: BlueprintClass } = require('../blueprint/instance');
+const BlueprintClass = require('../blueprint/base/cls');
 const { isFunction, isObject } = require('./detector');
 
 const DEFAULT_OPTIONS = {

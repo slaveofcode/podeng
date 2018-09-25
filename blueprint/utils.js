@@ -16,7 +16,15 @@ const EXTEND_OPTIONS = {
 
 const EMBED_OPTIONS = {
   default: undefined,
-  hideOnFail: false
+  hideOnFail: false,
+  serialize: {
+    to: null,
+    display: true
+  },
+  deserialize: {
+    from: null,
+    display: true
+  }
 };
 
 const combineObjDefaultOptions = options =>

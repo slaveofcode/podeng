@@ -1,6 +1,6 @@
 'use strict';
 
-const { cls: blueprintClass } = require('../blueprint/instance');
+const { BlueprintClass: blueprintClass } = require('../blueprint');
 const blueprint = require('../blueprint');
 const types = require('../types');
 const { keys } = require('lodash');

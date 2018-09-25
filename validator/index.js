@@ -1,7 +1,7 @@
 'use strict';
 
 const { keys, difference } = require('lodash');
-const { cls: blueprintClass } = require('../blueprint/instance');
+const BlueprintClass = require('../blueprint/base/cls');
 const { combineDefaultOptions, isBlueprintObject } = require('./utils');
 const { isFunction } = require('../types/detector');
 const PodengError = require('./errors/PodengError');
@@ -19,7 +19,7 @@ const validatorCreator = (component, options = {}) => {
   if (!isValidObject) throw new TypeError(ERROR_INVALID_COMPONENT);
 
   if (isValidObject) {
-    if (!(component.getInstance() instanceof blueprintClass)) {
+    if (!(component.getInstance() instanceof BlueprintClass)) {
       throw new TypeError(ERROR_INVALID_COMPONENT);
     }
   }

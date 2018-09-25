@@ -1,10 +1,8 @@
 'use strict';
 
 const { includes, keys, forEach } = require('lodash');
-const {
-  cls: BlueprintClass,
-  embedCls: BlueprintEmbedClass
-} = require('./instance');
+const BlueprintClass = require('./base/cls');
+const BlueprintEmbedClass = require('./base/embedCls');
 const types = require('../types');
 const {
   combineObjDefaultOptions,
