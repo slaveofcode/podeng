@@ -29,4 +29,29 @@ test('Should be able to use transform type', () => {
   })
 
   expect(throwError).toThrow(TypeError('Invalid setup for "transform" type'))
+});
+
+test('Should be able to access sibling parameters', () => {
+  const Obj = blueprint.object({
+    val: types.string({ serialize: { to: 'value' } }),
+    val1: types.transform((val, info) => {
+      const value = info.operationType === 'deserialize' ? info.data.value : info.data.val;
+      return value + '12345'
+    }),
+  });
+
+  expect(Obj({ val: 'foo', val1: 'xyz' })).toEqual({
+    val: 'foo',
+    val1: 'foo12345',
+  })
+
+  expect(Obj.serialize({ val: 'foo', val1: 'xyz' })).toEqual({
+    value: 'foo',
+    val1: 'foo12345',
+  })
+
+  expect(Obj.deserialize({ value: 'foo', val1: 'xyz' })).toEqual({
+    val: 'foo',
+    val1: 'foo12345',
+  })
 })

@@ -47,15 +47,23 @@ const deserializeValue = function (valuesToDeserialize, onValidation = false) {
 
         let [fail, normalizedValue] = type.parse(
           deserializeFrom,
-          objValue ? objValue[deserializeFrom] : undefined
+          objValue ? objValue[deserializeFrom] : undefined,
+          {
+            operationType: 'deserialize',
+            data: objValue || {}
+          }
         );
 
         // Handle multilevel types normalization
         // for example conditions type
         while (isTypeObject(normalizedValue)) {
           const result = normalizedValue.parse(
-            key,
-            objValue ? objValue[key] : undefined
+            deserializeFrom,
+            objValue ? objValue[deserializeFrom] : undefined,
+            {
+              operationType: 'deserialize',
+              data: objValue || {}
+            }
           );
           fail = result[0];
           normalizedValue = result[1];
