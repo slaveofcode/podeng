@@ -31,7 +31,11 @@ const normalizeValue = function (valuesToNormalize, onValidation = false) {
 
         let [fail, normalizedValue] = type.parse(
           key,
-          objValue ? objValue[key] : undefined
+          objValue ? objValue[key] : undefined,
+          {
+            operationType: 'serialize',
+            data: objValue || {}
+          }
         );
 
         // Handle multilevel types normalization
@@ -39,7 +43,11 @@ const normalizeValue = function (valuesToNormalize, onValidation = false) {
         while (isTypeObject(normalizedValue)) {
           const result = normalizedValue.parse(
             key,
-            objValue ? objValue[key] : undefined
+            objValue ? objValue[key] : undefined,
+            {
+              operationType: 'serialize',
+              data: objValue || {}
+            }
           );
           fail = result[0];
           normalizedValue = result[1];

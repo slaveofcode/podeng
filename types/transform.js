@@ -18,11 +18,11 @@ const parserMaker = (...params) => {
     throw new TypeError('Invalid setup for "transform" type');
   }
 
-  return (key, value) => {
+  return (key, value, info) => {
     let parsedVal = null;
 
     parsedVal = isFunction(params[0])
-      ? params[0].apply(null, [value])
+      ? params[0].apply(null, [value, info])
       : params[0];
 
     return [parsedVal === null, parsedVal];
