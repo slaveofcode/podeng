@@ -3,7 +3,7 @@
 const { includes, keys } = require('lodash');
 
 const DEFAULT_OPTIONS = {
-  frozen: true,
+  frozen: false,
   giveWarning: false,
   onError: {},
   throwOnError: false,
