@@ -46,13 +46,12 @@ test('Make sure blueprint object working with at least one type', () => {
 test('Frozen and Non frozen object', () => {
   const FrozenCar = blueprint.object({
     type: types.string
-  });
+  }, { frozen: true });
 
   const Car = blueprint.object(
     {
       type: types.string
-    },
-    { frozen: false }
+    }
   );
 
   const frozenCar = FrozenCar({ type: 'Honda' });

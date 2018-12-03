@@ -152,7 +152,7 @@ test('Object include float with validation', () => {
   const willThrow = obj => {
     return () => {
       obj.call(null, {
-        value: function() {},
+        value: function () { },
       })
     }
   }
@@ -202,4 +202,12 @@ test('Will validate using custom value', () => {
   expect(Obj({ value: '220.21' })).toEqual({ value: 220.21 })
   expect(Obj2({ value: 'abc' })).toEqual({ value: 9999 })
   expect(Obj2({ value: 1818 })).toEqual({ value: 9999 })
+})
+
+test('Ignore null value', () => {
+  const Obj = blueprint.object({
+    value: types.float,
+  })
+
+  expect(Obj({ value: null })).toEqual({ value: null })
 })

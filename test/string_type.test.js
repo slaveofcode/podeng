@@ -187,7 +187,7 @@ test('Object include string with validation', () => {
   const willThrow = obj => {
     return () => {
       obj.call(null, {
-        value: function() {},
+        value: function () { },
       })
     }
   }
@@ -216,4 +216,12 @@ test('Will validate using custom value', () => {
   expect(Obj({ value: '123' })).toEqual({ value: null })
   expect(Obj({ value: '321' })).toEqual({ value: '321' })
   expect(Obj2({ value: '123' })).toEqual({ value: '54321' })
+})
+
+test('Null value should be interpreted as null', () => {
+  const Obj = blueprint.object({
+    value: types.string,
+  })
+
+  expect(Obj({ value: null })).toEqual({ value: null })
 })

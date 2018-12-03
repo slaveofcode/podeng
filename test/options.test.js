@@ -140,7 +140,15 @@ test('Object include integer with validation', () => {
   const fnToExec1 = params => () => Validate(params)
   const fnToExec2 = params => () => Validate2(params)
 
-  expect(fnToExec1({ data: () => {} })).toThrow(PodengError)
+  expect(fnToExec1({ data: () => { } })).toThrow(PodengError)
   expect(fnToExec1({ data: 'valid_3' })).toThrow(PodengError)
   expect(fnToExec2({ data: 350 })).toThrow(TypeError('Error on Validate2'))
+})
+
+test('Ignore null value', () => {
+  const Obj = blueprint.object({
+    value: types.options([10, 20, 30]),
+  })
+
+  expect(Obj({ value: null })).toEqual({ value: null })
 })
