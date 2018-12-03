@@ -34,7 +34,7 @@ const parseValue = (value, stringify = true) => {
   let err = null;
   const parsedValue = isString(value)
     ? value
-    : stringify
+    : (stringify && value !== null)
       ? JSON.stringify(value)
       : undefined;
 
