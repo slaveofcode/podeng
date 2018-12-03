@@ -72,3 +72,11 @@ test('Should be able to use datetime type', () => {
 
   expect(throwError).toThrow(TypeError('Invalid setup for "date" type'))
 })
+
+test('Ignore null value', () => {
+  const Obj = blueprint.object({
+    value: types.datetime,
+  })
+
+  expect(Obj({ value: null })).toEqual({ value: null })
+})

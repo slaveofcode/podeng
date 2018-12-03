@@ -148,7 +148,7 @@ test('Object include number with validation', () => {
   const willThrow = obj => {
     return () => {
       obj.call(null, {
-        value: function() {},
+        value: function () { },
       })
     }
   }
@@ -198,4 +198,13 @@ test('Will validate using custom value', () => {
   expect(Obj({ value: '220' })).toEqual({ value: 220 })
   expect(Obj2({ value: '123' })).toEqual({ value: 123 })
   expect(Obj2({ value: 1818 })).toEqual({ value: 9999 })
+})
+
+
+test('Ignore null value', () => {
+  const Obj = blueprint.object({
+    value: types.number,
+  })
+
+  expect(Obj({ value: null })).toEqual({ value: null })
 })
