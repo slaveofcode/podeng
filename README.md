@@ -4,6 +4,8 @@ Simple JSON value normalization to make everything gone right.
 
 This small library helps you to make JSON property value to follow the rules, no matter how strange the value is, you could still normalize it into right type(s).
 
+**Update:** I have a limited amount of time to writing documentation on this module, for faster understanding (and example) please take a look at test files under [**test**](https://github.com/slaveofcode/podeng/tree/master/test) folder, it has a lot of code examples to get you understand the idea of this module.
+
 <img src="https://raw.github.com/slaveofcode/podeng/master/logos/logo_200.png" align="right" />
 
 ## Terms
