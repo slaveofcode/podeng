@@ -159,7 +159,7 @@ const Buses = blueprint.array(Bus);
 
 // extend from an array object
 const FlyingBuses = blueprint.extend(Buses, {
-  wingsCount: typoes.integer
+  wingsCount: types.integer
 });
 
 Bus({
