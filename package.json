@@ -1,6 +1,6 @@
 {
   "name": "podeng",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Simple JSON value normalization to make everything gone right.",
   "main": "index.js",
   "directories": {
