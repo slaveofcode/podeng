@@ -3,7 +3,12 @@
 const { keys, forEach } = require('lodash');
 const { isArray } = require('../../types/detector');
 const { isTypeObject } = require('../utils');
-const { resolveEmbededObj, parseEmbedValue, initiateTypeHandler, handleUnknownProperties } = require('./utils');
+const {
+  resolveEmbededObj,
+  parseEmbedValue,
+  initiateTypeHandler,
+  handleUnknownProperties
+} = require('./utils');
 
 const normalizeValue = function (valuesToNormalize, onValidation = false) {
   if (this.isArray && !isArray(valuesToNormalize)) {
@@ -108,7 +113,10 @@ const normalizeValue = function (valuesToNormalize, onValidation = false) {
         doValidation: onValidation
       });
       if (isAllowUnknownProperties) {
-        Object.assign(normalizedResult, handleUnknownProperties(v, this.schema));
+        Object.assign(
+          normalizedResult,
+          handleUnknownProperties(v, this.schema)
+        );
       }
       return [errorDetails, normalizedResult];
     });

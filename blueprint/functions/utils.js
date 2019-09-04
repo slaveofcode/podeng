@@ -22,9 +22,11 @@ const initiateTypeHandler = typehandler => {
  * @param {embedCls} embeddedObject
  */
 const resolveEmbededObj = obj =>
-  (isFunction(obj.embed) && obj.embed() instanceof BlueprintEmbedClass
+  isFunction(obj.embed) && obj.embed() instanceof BlueprintEmbedClass
     ? obj.embed()
-    : obj instanceof BlueprintEmbedClass ? obj : null);
+    : obj instanceof BlueprintEmbedClass
+      ? obj
+      : null;
 
 const handleUnknownProperties = (params, objToExclude) => {
   const registeredKeys = keys(objToExclude);
@@ -61,7 +63,9 @@ const parseEmbedValue = (clsMethodName, embedObj, valueToParse) => {
     } else {
       // calling normalize/serialize/deserialize function on parent blueprint obj
       const [fail, , parsedValues] = embedInstance[clsMethodName](
-        valueToParse
+        valueToParse,
+        false,
+        { isSelfCall: true }
       );
 
       // applying embed object options
