@@ -1,15 +1,31 @@
 'use strict';
 
 const { includes, forEach } = require('lodash');
-const { resolveEmbededObj, parseEmbedValue, initiateTypeHandler, handleUnknownProperties } = require('./utils');
+const {
+  resolveEmbededObj,
+  parseEmbedValue,
+  initiateTypeHandler,
+  handleUnknownProperties
+} = require('./utils');
 
-const serializeValue = function (valuesToSerialize, onValidation = false) {
+const serializeValue = function (
+  valuesToSerialize,
+  onValidation = false,
+  opts = { isSelfCall: false }
+) {
   let serialized = this.isArray ? [] : {};
-  const [
-    isError,
-    errorDetails,
-    normalizedValues
-  ] = this.normalize(valuesToSerialize, { doValidation: onValidation });
+
+  let isError = false;
+  let errorDetails = [];
+  let normalizedValues = {};
+  if (!opts.isSelfCall) {
+    [isError, errorDetails, normalizedValues] = this.normalize(
+      valuesToSerialize,
+      { doValidation: onValidation }
+    );
+  } else {
+    normalizedValues = valuesToSerialize;
+  }
 
   const isAllowUnknownProperties = this.options.allowUnknownProperties;
 
@@ -21,7 +37,11 @@ const serializeValue = function (valuesToSerialize, onValidation = false) {
       const embedObj = resolveEmbededObj(typeHandler);
       if (embedObj !== null) {
         if (!embedObj.isHideOnSerialization()) {
-          const serializedResult = parseEmbedValue('serialize', embedObj, normalizedValues[key]);
+          const serializedResult = parseEmbedValue(
+            'serialize',
+            embedObj,
+            normalizedValues[key]
+          );
           const serializeTo = embedObj.getSerializeName();
           if (serializeTo !== null) {
             serialized[serializeTo] = serializedResult;
