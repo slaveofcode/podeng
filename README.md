@@ -1,6 +1,6 @@
 # PodengJS
 
-Simple JSON value normalization to make everything gone right.
+Simple JSON value normalization to make everything goes right.
 
 This small library helps you to make JSON property value to follow the rules, no matter how strange the value is, you could still normalize it into right type(s).
 
